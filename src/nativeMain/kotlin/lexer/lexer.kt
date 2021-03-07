@@ -3,7 +3,7 @@ package lexer
 import token.Token
 import token.TokenType
 
-class Lexer(private val _input: String) {
+class Lexer(_input: String) {
     val input = _input.toCharArray()
     var pos: Int = 0
     var readPos: Int = 0
@@ -25,19 +25,19 @@ private fun Lexer.readChar() {
 fun Lexer.nextToken(): Token {
     val token = when(ch) {
         null -> Token(TokenType.EOF, "")
-        '=' -> Token(TokenType.ASSIGN, ch.toString())
-        '+' -> Token(TokenType.PLUS, ch.toString())
-        '(' -> Token(TokenType.LPAREN, ch.toString())
-        ')' -> Token(TokenType.RPAREN, ch.toString())
-        '{' -> Token(TokenType.LBRACE, ch.toString())
-        '}' -> Token(TokenType.RBRACE, ch.toString())
-        ',' -> Token(TokenType.COMMA, ch.toString())
-        ';' -> Token(TokenType.SEMICOLON, ch.toString())
-        else -> Token(TokenType.ILLEGAL, ch.toString())
+        '=' -> newToken(TokenType.ASSIGN, ch)
+        '+' -> newToken(TokenType.PLUS, ch)
+        '(' -> newToken(TokenType.LPAREN, ch)
+        ')' -> newToken(TokenType.RPAREN, ch)
+        '{' -> newToken(TokenType.LBRACE, ch)
+        '}' -> newToken(TokenType.RBRACE, ch)
+        ',' -> newToken(TokenType.COMMA, ch)
+        ';' -> newToken(TokenType.SEMICOLON, ch)
+        else -> newToken(TokenType.ILLEGAL, ch)
     }
     readChar()
     return token
 }
 
-
-
+fun newToken(t: TokenType, c: Char?): Token
+    = Token(t, c.toString())
