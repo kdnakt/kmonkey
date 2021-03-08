@@ -36,7 +36,6 @@ fun Lexer.nextToken(): Token {
         ',' -> newToken(TokenType.COMMA, ch)
         ';' -> newToken(TokenType.SEMICOLON, ch)
         else -> {
-            println("ch=${ch}")
             when {
                 isLetter(ch) -> {
                     val ident = readIdentifier()
@@ -67,7 +66,6 @@ private fun Lexer.readIdentifier(): String {
     while (isLetter(ch)) {
         readChar()
     }
-    println("${input.concatToString()} $p to $pos")
     return input.concatToString(p, pos)
 }
 
