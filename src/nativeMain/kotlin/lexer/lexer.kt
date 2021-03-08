@@ -2,6 +2,7 @@ package lexer
 
 import token.Token
 import token.TokenType
+import token.lookUpIdent
 
 class Lexer(_input: String) {
     val input = _input.toCharArray()
@@ -23,6 +24,7 @@ private fun Lexer.readChar() {
 }
 
 fun Lexer.nextToken(): Token {
+    skipWhitespace()
     val token = when(ch) {
         null -> Token(TokenType.EOF, "")
         '=' -> newToken(TokenType.ASSIGN, ch)
@@ -33,11 +35,61 @@ fun Lexer.nextToken(): Token {
         '}' -> newToken(TokenType.RBRACE, ch)
         ',' -> newToken(TokenType.COMMA, ch)
         ';' -> newToken(TokenType.SEMICOLON, ch)
-        else -> newToken(TokenType.ILLEGAL, ch)
+        else -> {
+            println("ch=${ch}")
+            when {
+                isLetter(ch) -> {
+                    val ident = readIdentifier()
+                    return Token(lookUpIdent(ident), ident)
+                }
+                isDigit(ch) -> {
+                    return Token(TokenType.INT, readNumber())
+                }
+                else -> {
+                    newToken(TokenType.ILLEGAL, ch)
+                }
+            }
+        }
     }
     readChar()
     return token
 }
 
+private fun Lexer.skipWhitespace() {
+    while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+        readChar()
+    }
+}
+
+
+private fun Lexer.readIdentifier(): String {
+    val p = pos
+    while (isLetter(ch)) {
+        readChar()
+    }
+    println("${input.concatToString()} $p to $pos")
+    return input.concatToString(p, pos)
+}
+
+private fun Lexer.readNumber(): String {
+    val p = pos
+    while (isDigit(ch)) {
+        readChar()
+    }
+    return input.concatToString(p, pos)
+}
+
 fun newToken(t: TokenType, c: Char?): Token
     = Token(t, c.toString())
+
+fun isLetter(c: Char?): Boolean {
+    if (c == null) return false
+    return 'a' <= c && c <= 'z'
+            || 'A' <= c && c <= 'Z'
+            || c == '_'
+}
+
+fun isDigit(c: Char?): Boolean {
+    if (c == null) return false
+    return '0' <= c && c <= '9'
+}

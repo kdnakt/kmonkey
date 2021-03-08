@@ -26,3 +26,15 @@ enum class TokenType(val tokenType: String) {
     FUNCTION("FUNCTION"),
     LET("LET"),
 }
+
+val keywords = mapOf(
+    "fn" to TokenType.FUNCTION,
+    "let" to TokenType.LET
+)
+
+fun lookUpIdent(ident: String): TokenType {
+    if (keywords.containsKey(ident)) {
+        return keywords.getValue(ident)
+    }
+    return TokenType.IDENT
+}
