@@ -12,13 +12,32 @@ class LexerTest {
         val input =
         """
             let five = 5;
+            let add = fn(x, y) {
+              x + y;
+            };
         """.trimIndent()
         val tests = listOf(
             TokenType.LET to "let",
             TokenType.IDENT to "five",
             TokenType.ASSIGN to "=",
             TokenType.INT to "5",
-            TokenType.SEMICOLON to ";"
+            TokenType.SEMICOLON to ";",
+            TokenType.LET to "let",
+            TokenType.IDENT to "add",
+            TokenType.ASSIGN to "=",
+            TokenType.FUNCTION to "fn",
+            TokenType.LPAREN to "(",
+            TokenType.IDENT to "x",
+            TokenType.COMMA to ",",
+            TokenType.IDENT to "y",
+            TokenType.RPAREN to ")",
+            TokenType.LBRACE to "{",
+            TokenType.IDENT to "x",
+            TokenType.PLUS to "+",
+            TokenType.IDENT to "y",
+            TokenType.SEMICOLON to ";",
+            TokenType.RBRACE to "}",
+            TokenType.SEMICOLON to ";",
         )
         val lexer = Lexer(input)
 
