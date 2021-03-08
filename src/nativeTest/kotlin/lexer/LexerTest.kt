@@ -15,6 +15,7 @@ class LexerTest {
             let add = fn(x, y) {
               x + y;
             };
+            let result = add(five, ten);
         """.trimIndent()
         val tests = listOf(
             TokenType.LET to "let",
@@ -38,6 +39,17 @@ class LexerTest {
             TokenType.SEMICOLON to ";",
             TokenType.RBRACE to "}",
             TokenType.SEMICOLON to ";",
+            TokenType.LET to "let",
+            TokenType.IDENT to "result",
+            TokenType.ASSIGN to "=",
+            TokenType.IDENT to "add",
+            TokenType.LPAREN to "(",
+            TokenType.IDENT to "five",
+            TokenType.COMMA to ",",
+            TokenType.IDENT to "ten",
+            TokenType.RPAREN to ")",
+            TokenType.SEMICOLON to ";",
+            TokenType.EOF to "",
         )
         val lexer = Lexer(input)
 
