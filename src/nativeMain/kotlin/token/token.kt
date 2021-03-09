@@ -14,6 +14,15 @@ enum class TokenType(val tokenType: String) {
 
     ASSIGN("="),
     PLUS("+"),
+    MINUS("-"),
+    BANG("!"),
+    ASTERISK("*"),
+    SLASH("/"),
+
+    EQ("=="),
+    NOT_EQ("!="),
+    LT("<"),
+    GT(">"),
 
     COMMA(","),
     SEMICOLON(";"),
@@ -25,11 +34,21 @@ enum class TokenType(val tokenType: String) {
 
     FUNCTION("FUNCTION"),
     LET("LET"),
+    TRUE("TRUE"),
+    FALSE("FALSE"),
+    IF("IF"),
+    ELSE("ELSE"),
+    RETURN("RETURN"),
 }
 
 val keywords = mapOf(
-    "fn" to TokenType.FUNCTION,
-    "let" to TokenType.LET
+        "fn" to TokenType.FUNCTION,
+        "let" to TokenType.LET,
+        "true" to TokenType.TRUE,
+        "false" to TokenType.FALSE,
+        "if" to TokenType.IF,
+        "else" to TokenType.ELSE,
+        "return" to TokenType.RETURN,
 )
 
 fun lookUpIdent(ident: String): TokenType {

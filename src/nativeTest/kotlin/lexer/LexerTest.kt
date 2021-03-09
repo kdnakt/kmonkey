@@ -16,6 +16,15 @@ class LexerTest {
               x + y;
             };
             let result = add(five, ten);
+            !-/*5;
+            5 < 10 > 5;
+            if (5 < 10) {
+            	return true;
+            } else {
+	            return false;
+            }
+            10 == 10;
+            10 != 9;
         """.trimIndent()
         val tests = listOf(
             TokenType.LET to "let",
@@ -48,6 +57,43 @@ class LexerTest {
             TokenType.COMMA to ",",
             TokenType.IDENT to "ten",
             TokenType.RPAREN to ")",
+            TokenType.SEMICOLON to ";",
+            TokenType.BANG to "!",
+            TokenType.MINUS to "-",
+            TokenType.SLASH to "/",
+            TokenType.ASTERISK to "*",
+            TokenType.INT to "5",
+            TokenType.SEMICOLON to ";",
+            TokenType.INT to "5",
+            TokenType.LT to "<",
+            TokenType.INT to "10",
+            TokenType.GT to ">",
+            TokenType.INT to "5",
+            TokenType.SEMICOLON to ";",
+            TokenType.IF to "if",
+            TokenType.LPAREN to "(",
+            TokenType.INT to "5",
+            TokenType.LT to "<",
+            TokenType.INT to "10",
+            TokenType.RPAREN to ")",
+            TokenType.LBRACE to "{",
+            TokenType.RETURN to "return",
+            TokenType.TRUE to "true",
+            TokenType.SEMICOLON to ";",
+            TokenType.RBRACE to "}",
+            TokenType.ELSE to "else",
+            TokenType.LBRACE to "{",
+            TokenType.RETURN to "return",
+            TokenType.FALSE to "false",
+            TokenType.SEMICOLON to ";",
+            TokenType.RBRACE to "}",
+            TokenType.INT to "10",
+            TokenType.EQ to "==",
+            TokenType.INT to "10",
+            TokenType.SEMICOLON to ";",
+            TokenType.INT to "10",
+            TokenType.NOT_EQ to "!=",
+            TokenType.INT to "9",
             TokenType.SEMICOLON to ";",
             TokenType.EOF to "",
         )

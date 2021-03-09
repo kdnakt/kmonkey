@@ -27,7 +27,15 @@ fun Lexer.nextToken(): Token {
     skipWhitespace()
     val token = when(ch) {
         null -> Token(TokenType.EOF, "")
-        '=' -> newToken(TokenType.ASSIGN, ch)
+        '=' -> {
+            if (peekChar() == '=') {
+                val prev = ch
+                readChar()
+                Token(TokenType.EQ, prev.toString() + ch.toString())
+            } else {
+                newToken(TokenType.ASSIGN, ch)
+            }
+        }
         '+' -> newToken(TokenType.PLUS, ch)
         '(' -> newToken(TokenType.LPAREN, ch)
         ')' -> newToken(TokenType.RPAREN, ch)
@@ -35,6 +43,20 @@ fun Lexer.nextToken(): Token {
         '}' -> newToken(TokenType.RBRACE, ch)
         ',' -> newToken(TokenType.COMMA, ch)
         ';' -> newToken(TokenType.SEMICOLON, ch)
+        '!' -> {
+            if (peekChar() == '=') {
+                val prev = ch
+                readChar()
+                Token(TokenType.NOT_EQ, prev.toString() + ch.toString())
+            } else {
+                newToken(TokenType.BANG, ch)
+            }
+        }
+        '-' -> newToken(TokenType.MINUS, ch)
+        '/' -> newToken(TokenType.SLASH, ch)
+        '*' -> newToken(TokenType.ASTERISK, ch)
+        '<' -> newToken(TokenType.LT, ch)
+        '>' -> newToken(TokenType.GT, ch)
         else -> {
             when {
                 isLetter(ch) -> {
@@ -60,6 +82,13 @@ private fun Lexer.skipWhitespace() {
     }
 }
 
+private fun Lexer.peekChar(): Char? {
+    return if (readPos >= input.size) {
+        null
+    } else {
+        input[readPos]
+    }
+}
 
 private fun Lexer.readIdentifier(): String {
     val p = pos
