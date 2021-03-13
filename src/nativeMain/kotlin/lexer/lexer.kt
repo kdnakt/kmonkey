@@ -25,7 +25,6 @@ private fun Lexer.readChar() {
 
 fun Lexer.nextToken(): Token {
     skipWhitespace()
-    println("ch $ch")
     val token = when(ch) {
         null -> Token(TokenType.EOF, "")
         '=' -> {
