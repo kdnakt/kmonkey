@@ -1,21 +1,46 @@
 package parser
 
-import ast.LetStatement
-import ast.Statement
+import ast.*
 import lexer.Lexer
+import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ParserTest {
 
     @Test
     fun testLetStatements() {
-        val input ="""
-            let x = 5;
-            let y = 10;
-            let foobar = 838383;
-        """.trimIndent()
+        data class Test<T>(val input: String,
+                        val expectedIdentifier: String,
+                        val expectedValue: T)
+        val tests = listOf(
+                Test<Long>("let x = 5;", "x", 5),
+                Test<Long>("let y = 10;", "y", 10),
+                Test<Long>("let foobar = 838383;", "foobar", 838383),
+        )
 
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(1, program.statements.size)
+            val stmt = program.statements[0]
+            testLetStatement(stmt, test.expectedIdentifier)
+            val value = (stmt as LetStatement).value
+            testLiteralExpression(value, test.expectedValue)
+        }
+    }
+
+    @Test
+    fun testReturnStatement() {
+        val input = """
+            return 5;
+            return 10;
+            return 993322;
+        """.trimIndent()
         val lexer = Lexer(input)
         val parser = Parser(lexer)
         val program = parser.parseProgram()
@@ -23,13 +48,11 @@ class ParserTest {
 
         assertEquals(3, program.statements.size,
                 "wrong program.statements count")
-        val tests = listOf("x", "y", "foobar")
-        for ((i, expected) in tests.withIndex()) {
-            val stmt = program.statements[i]
-            testLetStatement(stmt, expected)
+        for (stmt in program.statements) {
+            assertTrue(stmt is ReturnStatement)
+            assertEquals("return", stmt.tokenLiteral)
         }
     }
-
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
@@ -46,4 +69,16 @@ fun checkParseErrors(parser: Parser) {
         println("parser error: $error")
     }
     error("Parse error!")
+}
+
+fun <T> testLiteralExpression(exp: Expression?, expected: T) {
+    when (expected) {
+        is Long -> testIntegerLiteral(exp, expected)
+    }
+}
+
+fun testIntegerLiteral(exp: Expression?, expected: Long) {
+    val integ = exp as IntegerLiteral
+    assertEquals(expected, integ.value)
+    assertEquals("$expected", integ.tokenLiteral)
 }

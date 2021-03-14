@@ -1,17 +1,40 @@
 package parser
 
-import ast.Identifier
-import ast.LetStatement
-import ast.Program
-import ast.Statement
+import ast.*
 import lexer.nextToken
 import token.TokenType
+
+enum class Precedence {
+    LOWEST,
+    EQUALS, // ==
+    LESSGREATER, // < or >
+    SUM, // +
+    PRODUCT, // *
+    PREFIX, // -X or !X
+    CALL, // myFunc()
+}
+
+val precedences = mapOf(
+        TokenType.EQ to Precedence.EQUALS,
+        TokenType.NOT_EQ to Precedence.EQUALS,
+        TokenType.LT to Precedence.LESSGREATER,
+        TokenType.GT to Precedence.LESSGREATER,
+        TokenType.PLUS to Precedence.SUM,
+        TokenType.MINUS to Precedence.SUM,
+        TokenType.SLASH to Precedence.PRODUCT,
+        TokenType.ASTERISK to Precedence.PRODUCT,
+)
 
 class Parser(val lexer: lexer.Lexer) {
     var curToken: token.Token? = null
     var peekToken: token.Token? = null
 
     val errors = mutableListOf<String>()
+    val prefixParseFns = mapOf<TokenType, () -> Expression>(
+        TokenType.IDENT to ::parseIdentifier,
+        TokenType.INT to ::parseIntegerLiteral,
+    )
+    val infixParseFns = mutableMapOf<TokenType, (Expression) -> Expression>()
 
     init {
         // set curToken and peekToken
@@ -47,14 +70,27 @@ fun Parser.peekError(t: TokenType) {
 
 fun Parser.parseStatement(): Statement? = when(curToken!!.tokenType) {
     TokenType.LET -> parseLetStatement()
-    else -> null
+    TokenType.RETURN -> parseReturnStatement()
+    else -> parseExpressionStatement()
 }
 
 fun Parser.parseLetStatement(): LetStatement? {
-    val token = curToken
+    val token = curToken!!
     if (!expectPeek(TokenType.IDENT)) return null
-    val stmt = LetStatement(token!!, Identifier(curToken!!, curToken!!.literal))
+    val ident = Identifier(curToken!!, curToken!!.literal)
     if (!expectPeek(TokenType.ASSIGN)) return null
+    nextToken()
+    val stmt = LetStatement(token, ident, parseExpression(Precedence.LOWEST))
+    while (!curTokenIs(TokenType.SEMICOLON)) {
+        nextToken()
+    }
+    return stmt
+}
+
+fun Parser.parseReturnStatement(): ReturnStatement {
+    val token = curToken!!
+    nextToken()
+    val stmt = ReturnStatement(token, parseExpression(Precedence.LOWEST))
     while (!curTokenIs(TokenType.SEMICOLON)) {
         nextToken()
     }
@@ -69,4 +105,45 @@ fun Parser.parseProgram(): Program {
         nextToken()
     }
     return Program(statements)
+}
+
+fun Parser.parseExpressionStatement(): ExpressionStatement {
+    val stmt = ExpressionStatement(curToken!!, parseExpression(Precedence.LOWEST))
+    if (peekTokenIs(TokenType.SEMICOLON)) nextToken()
+    return stmt
+}
+
+fun Parser.parseExpression(precedence: Precedence): Expression? {
+    val prefix = prefixParseFns[curToken!!.tokenType]
+    if (prefix == null) {
+        noPrefixParseFnError(curToken!!.tokenType)
+        return null
+    }
+    var leftExp = prefix()
+    while (!peekTokenIs(TokenType.SEMICOLON) && precedence < peekPrecedence()) {
+        val infix = infixParseFns[peekToken!!.tokenType] ?: return leftExp
+        nextToken()
+        leftExp = infix(leftExp)
+    }
+    return leftExp
+}
+
+fun Parser.noPrefixParseFnError(t: TokenType) {
+    errors.add("no prefix parse function for $t found")
+}
+
+fun Parser.peekPrecedence(): Precedence {
+    val p = precedences[peekToken!!.tokenType]
+    if (p != null) return p
+    return Precedence.LOWEST
+}
+
+fun Parser.parseIdentifier(): Expression {
+    return Identifier(curToken!!, curToken!!.literal)
+}
+
+fun Parser.parseIntegerLiteral(): Expression {
+    val token = curToken!!
+    val value = token.literal.toLong()
+    return IntegerLiteral(token, value)
 }
