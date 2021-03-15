@@ -72,13 +72,13 @@ data class IntegerLiteral(val token: Token, val value: Long)
 data class PrefixExpression(
         val token: Token,
         val operator: String,
-        val right: Expression,
+        val right: Expression?,
 ): Expression {
     override val tokenLiteral = token.literal
     override fun string(): String {
         val sb = StringBuilder("(")
         sb.append(operator)
-        sb.append(right.string())
+        if (right != null) sb.append(right.string())
         sb.append(")")
         return sb.toString()
     }

@@ -33,9 +33,11 @@ class Parser(val lexer: lexer.Lexer) {
     val prefixParseFns = mapOf<TokenType, () -> Expression>(
         TokenType.IDENT to ::parseIdentifier,
         TokenType.INT to ::parseIntegerLiteral,
+        TokenType.MINUS to ::parsePrefixExpression,
     )
     val infixParseFns = mapOf<TokenType, (Expression) -> Expression>(
-        TokenType.PLUS to ::parseInfixExpression
+        TokenType.PLUS to ::parseInfixExpression,
+        TokenType.MINUS to ::parseInfixExpression,
     )
 
     init {
@@ -161,4 +163,14 @@ fun Parser.curPrecedence(): Precedence {
     val p = precedences[curToken!!.tokenType]
     if (p != null) return p
     return Precedence.LOWEST
+}
+
+fun Parser.parsePrefixExpression(): Expression {
+    val token = curToken!!
+    nextToken()
+    return PrefixExpression(
+            token,
+            token.literal,
+            parseExpression(Precedence.PREFIX)
+    )
 }
