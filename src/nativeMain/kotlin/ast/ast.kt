@@ -68,3 +68,35 @@ data class IntegerLiteral(val token: Token, val value: Long)
     override val tokenLiteral = token.literal
     override fun string(): String = value.toString()
 }
+
+data class PrefixExpression(
+        val token: Token,
+        val operator: String,
+        val right: Expression,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("(")
+        sb.append(operator)
+        sb.append(right.string())
+        sb.append(")")
+        return sb.toString()
+    }
+}
+
+data class InfixExpression(
+        val token: Token,
+        val left: Expression,
+        val operator: String,
+        val right: Expression,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("(")
+        sb.append(left.string())
+        sb.append(" $operator ")
+        sb.append(right.string())
+        sb.append(")")
+        return sb.toString()
+    }
+}

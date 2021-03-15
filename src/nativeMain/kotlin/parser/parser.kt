@@ -34,7 +34,9 @@ class Parser(val lexer: lexer.Lexer) {
         TokenType.IDENT to ::parseIdentifier,
         TokenType.INT to ::parseIntegerLiteral,
     )
-    val infixParseFns = mutableMapOf<TokenType, (Expression) -> Expression>()
+    val infixParseFns = mapOf<TokenType, (Expression) -> Expression>(
+        TokenType.PLUS to ::parseInfixExpression
+    )
 
     init {
         // set curToken and peekToken
@@ -146,4 +148,17 @@ fun Parser.parseIntegerLiteral(): Expression {
     val token = curToken!!
     val value = token.literal.toLong()
     return IntegerLiteral(token, value)
+}
+
+fun Parser.parseInfixExpression(left: Expression): Expression {
+    val token = curToken!!
+    val precedence = curPrecedence()
+    nextToken()
+    return InfixExpression(token, left, token.literal, parseExpression(precedence)!!)
+}
+
+fun Parser.curPrecedence(): Precedence {
+    val p = precedences[curToken!!.tokenType]
+    if (p != null) return p
+    return Precedence.LOWEST
 }

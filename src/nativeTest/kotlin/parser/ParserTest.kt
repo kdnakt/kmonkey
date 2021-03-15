@@ -53,6 +53,32 @@ class ParserTest {
             assertEquals("return", stmt.tokenLiteral)
         }
     }
+
+    @Test
+    fun testParsingInfixExpressions() {
+        data class Test<T>(val input: String,
+                           val leftVal: T,
+                           val operator: String,
+                           val rightVal: T)
+        val tests = listOf(
+                Test<Long>("5 + 5", 5, "+", 5),
+        )
+
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(1, program.statements.size,
+                    "wrong program.statements count")
+            val stmt = program.statements[0] as ExpressionStatement
+            val exp = stmt.expression as InfixExpression
+            testIntegerLiteral(exp.left, test.leftVal)
+            assertEquals(test.operator, exp.operator)
+            testIntegerLiteral(exp.right, test.rightVal)
+        }
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
