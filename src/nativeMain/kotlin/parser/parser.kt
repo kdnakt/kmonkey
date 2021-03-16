@@ -38,6 +38,12 @@ class Parser(val lexer: lexer.Lexer) {
     val infixParseFns = mapOf<TokenType, (Expression) -> Expression>(
         TokenType.PLUS to ::parseInfixExpression,
         TokenType.MINUS to ::parseInfixExpression,
+        TokenType.ASTERISK to ::parseInfixExpression,
+        TokenType.SLASH to ::parseInfixExpression,
+        TokenType.EQ to ::parseInfixExpression,
+        TokenType.NOT_EQ to ::parseInfixExpression,
+        TokenType.GT to ::parseInfixExpression,
+        TokenType.LT to ::parseInfixExpression,
     )
 
     init {

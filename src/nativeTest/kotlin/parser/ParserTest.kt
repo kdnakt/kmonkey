@@ -63,6 +63,12 @@ class ParserTest {
         val tests = listOf(
                 Test<Long>("5 + 5", 5, "+", 5),
                 Test<Long>("5 - 5", 5, "-", 5),
+                Test<Long>("5 * 5", 5, "*", 5),
+                Test<Long>("5 / 5", 5, "/", 5),
+                Test<Long>("5 > 5", 5, ">", 5),
+                Test<Long>("5 < 5", 5, "<", 5),
+                Test<Long>("5 == 5", 5, "==", 5),
+                Test<Long>("5 != 5", 5, "!=", 5),
         )
 
         for (test in tests) {
