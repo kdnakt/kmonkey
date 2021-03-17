@@ -86,6 +86,46 @@ class ParserTest {
             testIntegerLiteral(exp.right, test.rightVal)
         }
     }
+
+    @Test
+    fun testParsingPrefixExpressions() {
+        data class Test(val input: String,
+                        val operator: String,
+                        val integerVal: Long)
+        val tests = listOf(
+                Test("!5", "!", 5),
+                Test("-15", "-", 15),
+        )
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(1, program.statements.size)
+            val stmt = program.statements[0] as ExpressionStatement
+            val exp = stmt.expression as PrefixExpression
+            assertEquals(test.operator, exp.operator)
+            testIntegerLiteral(exp.right, test.integerVal)
+        }
+    }
+
+    @Test
+    fun testOperatorPrecedenceParsing() {
+        data class Test(val input: String, val expected: String)
+        val tests = listOf(
+                Test("-a * b", "((-a) * b)"),
+                Test("!-a", "(!(-a))"),
+        )
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(test.expected, program.string())
+        }
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
