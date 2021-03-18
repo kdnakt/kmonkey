@@ -136,6 +136,36 @@ class ParserTest {
             assertEquals(test.expected, program.string())
         }
     }
+
+    @Test
+    fun testIdentifierExpression() {
+        val input = "foobar;"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val ident = stmt.expression as Identifier
+        assertEquals("foobar", ident.value)
+        assertEquals("foobar", ident.tokenLiteral)
+    }
+
+    @Test
+    fun testIntegerLiteralExpression() {
+        val input = "5;"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val literal = stmt.expression as IntegerLiteral
+        assertEquals(5, literal.value)
+        assertEquals("5", literal.tokenLiteral)
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
