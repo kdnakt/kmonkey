@@ -116,6 +116,16 @@ class ParserTest {
         val tests = listOf(
                 Test("-a * b", "((-a) * b)"),
                 Test("!-a", "(!(-a))"),
+                Test("a + b + c", "((a + b) + c)",),
+                Test("a + b - c", "((a + b) - c)",),
+                Test("a * b * c", "((a * b) * c)",),
+                Test("a * b / c", "((a * b) / c)",),
+                Test("a + b / c", "(a + (b / c))",),
+                Test("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)",),
+                Test("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)",),
+                Test("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))",),
+                Test("5 < 4 != 3 < 4", "((5 < 4) != (3 < 4))",),
+                Test("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",),
         )
         for (test in tests) {
             val lexer = Lexer(test.input)
