@@ -86,17 +86,25 @@ data class PrefixExpression(
 
 data class InfixExpression(
         val token: Token,
-        val left: Expression,
+        val left: Expression?,
         val operator: String,
         val right: Expression,
 ): Expression {
     override val tokenLiteral = token.literal
     override fun string(): String {
         val sb = StringBuilder("(")
-        sb.append(left.string())
+        if (left != null) sb.append(left.string())
         sb.append(" $operator ")
         sb.append(right.string())
         sb.append(")")
         return sb.toString()
     }
+}
+
+data class Bool(
+        val token: Token,
+        val value: Boolean,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string() = token.literal
 }

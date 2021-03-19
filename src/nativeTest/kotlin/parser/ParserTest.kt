@@ -69,6 +69,8 @@ class ParserTest {
                 Test<Long>("5 < 5", 5, "<", 5),
                 Test<Long>("5 == 5", 5, "==", 5),
                 Test<Long>("5 != 5", 5, "!=", 5),
+                Test<Boolean>("true == true", true, "==", true),
+                Test<Boolean>("true != false", true, "!=", false),
         )
 
         for (test in tests) {
@@ -80,10 +82,7 @@ class ParserTest {
             assertEquals(1, program.statements.size,
                     "wrong program.statements count")
             val stmt = program.statements[0] as ExpressionStatement
-            val exp = stmt.expression as InfixExpression
-            testIntegerLiteral(exp.left, test.leftVal)
-            assertEquals(test.operator, exp.operator)
-            testIntegerLiteral(exp.right, test.rightVal)
+            testInfixExpression(stmt.expression, test.leftVal, test.operator, test.rightVal)
         }
     }
 
@@ -187,6 +186,7 @@ fun checkParseErrors(parser: Parser) {
 fun <T> testLiteralExpression(exp: Expression?, expected: T) {
     when (expected) {
         is Long -> testIntegerLiteral(exp, expected)
+        is Boolean -> testBooleanLiteral(exp, expected)
     }
 }
 
@@ -194,4 +194,20 @@ fun testIntegerLiteral(exp: Expression?, expected: Long) {
     val integ = exp as IntegerLiteral
     assertEquals(expected, integ.value)
     assertEquals("$expected", integ.tokenLiteral)
+}
+
+fun testBooleanLiteral(exp: Expression?, expected: Boolean) {
+    val bo = exp as Bool
+    assertEquals(expected, bo.value)
+    assertEquals(expected.toString(), bo.tokenLiteral)
+}
+
+fun testInfixExpression(exp: Expression?,
+                        left: Any,
+                        operator: String,
+                        right: Any) {
+    val opExp = exp as InfixExpression
+    testLiteralExpression(opExp.left, left)
+    assertEquals(operator, opExp.operator)
+    testLiteralExpression(opExp.right, right)
 }

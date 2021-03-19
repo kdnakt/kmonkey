@@ -30,13 +30,16 @@ class Parser(val lexer: lexer.Lexer) {
     var peekToken: token.Token? = null
 
     val errors = mutableListOf<String>()
-    val prefixParseFns = mapOf<TokenType, () -> Expression>(
+    val prefixParseFns = mapOf<TokenType, () -> Expression?>(
         TokenType.IDENT to ::parseIdentifier,
         TokenType.INT to ::parseIntegerLiteral,
         TokenType.MINUS to ::parsePrefixExpression,
         TokenType.BANG to ::parsePrefixExpression,
+        TokenType.TRUE to ::parseBooleanExpression,
+        TokenType.FALSE to ::parseBooleanExpression,
+        TokenType.LPAREN to ::parseGroupedExpression,
     )
-    val infixParseFns = mapOf<TokenType, (Expression) -> Expression>(
+    val infixParseFns = mapOf<TokenType, (Expression?) -> Expression>(
         TokenType.PLUS to ::parseInfixExpression,
         TokenType.MINUS to ::parseInfixExpression,
         TokenType.ASTERISK to ::parseInfixExpression,
@@ -159,7 +162,7 @@ fun Parser.parseIntegerLiteral(): Expression {
     return IntegerLiteral(token, value)
 }
 
-fun Parser.parseInfixExpression(left: Expression): Expression {
+fun Parser.parseInfixExpression(left: Expression?): Expression {
     val token = curToken!!
     val precedence = curPrecedence()
     nextToken()
@@ -180,4 +183,17 @@ fun Parser.parsePrefixExpression(): Expression {
             token.literal,
             parseExpression(Precedence.PREFIX)
     )
+}
+
+fun Parser.parseBooleanExpression(): Expression {
+    return Bool(curToken!!, curTokenIs(TokenType.TRUE))
+}
+
+fun Parser.parseGroupedExpression(): Expression? {
+    nextToken()
+    val exp = parseExpression(Precedence.LOWEST)
+    if (!expectPeek(TokenType.RPAREN)) {
+        return null
+    }
+    return exp
 }
