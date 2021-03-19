@@ -165,6 +165,29 @@ class ParserTest {
         assertEquals(5, literal.value)
         assertEquals("5", literal.tokenLiteral)
     }
+
+    @Test
+    fun testBoolExpression() {
+        data class Test(val input: String, val expected: Boolean)
+        val tests = listOf(
+                Test("true", true),
+                Test("false", false),
+        )
+
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(1, program.statements.size)
+            val stmt = program.statements[0] as ExpressionStatement
+            val bool = stmt.expression as Bool
+            assertEquals(test.expected, bool.value)
+            assertEquals(test.input, bool.tokenLiteral)
+        }
+    }
+
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
