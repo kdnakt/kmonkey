@@ -125,6 +125,11 @@ class ParserTest {
                 Test("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))",),
                 Test("5 < 4 != 3 < 4", "((5 < 4) != (3 < 4))",),
                 Test("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",),
+                Test("true", "true"),
+                Test("false", "false"),
+                Test("3 > 5 == false", "((3 > 5) == false)"),
+                Test("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"),
+                Test("-(5 + 5)", "(-(5 + 5))"),
         )
         for (test in tests) {
             val lexer = Lexer(test.input)
