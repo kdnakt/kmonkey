@@ -2,9 +2,9 @@ package parser
 
 import ast.*
 import lexer.Lexer
-import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ParserTest {
@@ -193,6 +193,24 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun testIfStatement() {
+        val input = "if (x < y) { x }"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val exp = stmt.expression as IfExpression
+        testInfixExpression(exp.condition, "x", "<", "y")
+        assertEquals(1, exp.consequence.statements.size)
+        val consequence = exp.consequence.statements[0] as ExpressionStatement
+        testIdentifier(consequence.expression, "x")
+        assertNull(exp.alternative)
+    }
+
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
@@ -238,4 +256,10 @@ fun testInfixExpression(exp: Expression?,
     testLiteralExpression(opExp.left, left)
     assertEquals(operator, opExp.operator)
     testLiteralExpression(opExp.right, right)
+}
+
+fun testIdentifier(exp: Expression?, value: String) {
+    val ident = exp as Identifier
+    assertEquals(value, ident.value)
+    assertEquals(value, ident.tokenLiteral)
 }

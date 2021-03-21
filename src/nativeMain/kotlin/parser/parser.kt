@@ -38,6 +38,7 @@ class Parser(val lexer: lexer.Lexer) {
         TokenType.TRUE to ::parseBooleanExpression,
         TokenType.FALSE to ::parseBooleanExpression,
         TokenType.LPAREN to ::parseGroupedExpression,
+        TokenType.IF to ::parseIfExpression,
     )
     val infixParseFns = mapOf<TokenType, (Expression?) -> Expression>(
         TokenType.PLUS to ::parseInfixExpression,
@@ -196,4 +197,45 @@ fun Parser.parseGroupedExpression(): Expression? {
         return null
     }
     return exp
+}
+
+fun Parser.parseIfExpression(): Expression? {
+    val token = curToken!!
+    if (!expectPeek(TokenType.LPAREN)) {
+        return null
+    }
+    nextToken()
+    val condition = parseExpression(Precedence.LOWEST)!!
+
+    if (!expectPeek(TokenType.RPAREN)) {
+        return null
+    }
+    if (!expectPeek(TokenType.LBRACE)) {
+        return null
+    }
+    val consequence = parseBlockStatement()
+    var alternative: BlockStatement? = null
+    if (peekTokenIs(TokenType.ELSE)) {
+        nextToken()
+
+        if (!expectPeek(TokenType.LBRACE)) {
+            return null
+        }
+        alternative = parseBlockStatement()
+    }
+    return IfExpression(token, condition, consequence, alternative)
+}
+
+fun Parser.parseBlockStatement(): BlockStatement {
+    val token = curToken!!
+    val statements = mutableListOf<Statement>()
+    nextToken()
+    while (!curTokenIs(TokenType.RBRACE) && !curTokenIs(TokenType.EOF)) {
+        val stmt = parseStatement()
+        if (stmt != null) {
+            statements.add(stmt)
+        }
+        nextToken()
+    }
+    return BlockStatement(token, statements)
 }

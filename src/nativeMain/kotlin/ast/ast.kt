@@ -108,3 +108,39 @@ data class Bool(
     override val tokenLiteral = token.literal
     override fun string() = token.literal
 }
+
+data class IfExpression(
+        val token: Token,
+        val condition: Expression,
+        val consequence: BlockStatement,
+        val alternative: BlockStatement?,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("if")
+        sb.append(condition.string())
+        sb.append(" ")
+        sb.append(consequence.string())
+
+        if (alternative != null) {
+            sb.append("else ")
+            sb.append(alternative.string())
+        }
+
+        return sb.toString()
+    }
+}
+
+data class BlockStatement(
+        val token: Token,
+        val statements: List<Statement>,
+): Statement {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder()
+        for (s in statements) {
+            sb.append(s.string())
+        }
+        return sb.toString()
+    }
+}
