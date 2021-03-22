@@ -39,6 +39,7 @@ class Parser(val lexer: lexer.Lexer) {
         TokenType.FALSE to ::parseBooleanExpression,
         TokenType.LPAREN to ::parseGroupedExpression,
         TokenType.IF to ::parseIfExpression,
+        TokenType.FUNCTION to ::parseFunctionExpression,
     )
     val infixParseFns = mapOf<TokenType, (Expression?) -> Expression>(
         TokenType.PLUS to ::parseInfixExpression,
@@ -238,4 +239,32 @@ fun Parser.parseBlockStatement(): BlockStatement {
         nextToken()
     }
     return BlockStatement(token, statements)
+}
+
+fun Parser.parseFunctionExpression(): Expression? {
+    val token = curToken!!
+    if (!expectPeek(TokenType.LPAREN)) return null
+    val params = parseFunctionParameters()
+    if (!expectPeek(TokenType.LBRACE)) return null
+    return FunctionLiteral(token, params, parseBlockStatement())
+}
+
+fun Parser.parseFunctionParameters(): List<Identifier>? {
+    val identifiers = mutableListOf<Identifier>()
+    if (peekTokenIs(TokenType.RPAREN)) {
+        nextToken()
+        return identifiers
+    }
+
+    nextToken()
+    identifiers.add(Identifier(curToken!!, curToken!!.literal))
+    while (peekTokenIs(TokenType.COMMA)) {
+        nextToken()
+        nextToken()
+        identifiers.add(Identifier(curToken!!, curToken!!.literal))
+    }
+
+    if (!expectPeek(TokenType.RPAREN)) return null
+
+    return identifiers
 }

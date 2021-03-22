@@ -115,16 +115,16 @@ class ParserTest {
         val tests = listOf(
                 Test("-a * b", "((-a) * b)"),
                 Test("!-a", "(!(-a))"),
-                Test("a + b + c", "((a + b) + c)",),
-                Test("a + b - c", "((a + b) - c)",),
-                Test("a * b * c", "((a * b) * c)",),
-                Test("a * b / c", "((a * b) / c)",),
-                Test("a + b / c", "(a + (b / c))",),
-                Test("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)",),
-                Test("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)",),
-                Test("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))",),
-                Test("5 < 4 != 3 < 4", "((5 < 4) != (3 < 4))",),
-                Test("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",),
+                Test("a + b + c", "((a + b) + c)"),
+                Test("a + b - c", "((a + b) - c)"),
+                Test("a * b * c", "((a * b) * c)"),
+                Test("a * b / c", "((a * b) / c)"),
+                Test("a + b / c", "(a + (b / c))"),
+                Test("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+                Test("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+                Test("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+                Test("5 < 4 != 3 < 4", "((5 < 4) != (3 < 4))"),
+                Test("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
                 Test("true", "true"),
                 Test("false", "false"),
                 Test("3 > 5 == false", "((3 > 5) == false)"),
@@ -209,6 +209,51 @@ class ParserTest {
         val consequence = exp.consequence.statements[0] as ExpressionStatement
         testIdentifier(consequence.expression, "x")
         assertNull(exp.alternative)
+    }
+
+    @Test
+    fun testFunctionLiteralParsing() {
+        val input = "fn(x, y) { x + y; }"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val function = stmt.expression as FunctionLiteral
+
+        assertEquals(2, function.parameters?.size)
+        testLiteralExpression(function.parameters!![0], "x")
+        testLiteralExpression(function.parameters!![1], "y")
+
+        assertEquals(1, function.body.statements.size)
+        val bodyStmt = function.body.statements[0] as ExpressionStatement
+        testInfixExpression(bodyStmt.expression, "x", "+", "y")
+    }
+
+    @Test
+    fun testFunctionParameterParsing() {
+        data class Test(val input: String, val expectedParams: List<String>)
+        val tests = listOf(
+                Test("fn() {};", listOf()),
+                Test("fn(x) {};", listOf("x")),
+                Test("fn(x, y, z) {};", listOf("x", "y", "z"))
+        )
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
+
+            assertEquals(1, program.statements.size)
+            val stmt = program.statements[0] as ExpressionStatement
+            val function = stmt.expression as FunctionLiteral
+            assertEquals(test.expectedParams.size, function.parameters?.size)
+            for (i in test.expectedParams.indices) {
+                testLiteralExpression(function.parameters!![i], test.expectedParams[i])
+            }
+        }
     }
 
 }

@@ -144,3 +144,21 @@ data class BlockStatement(
         return sb.toString()
     }
 }
+
+data class FunctionLiteral(
+        val token: Token,
+        val parameters: List<Identifier>?,
+        val body: BlockStatement
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder()
+        sb.append(tokenLiteral)
+        sb.append("(")
+        parameters?.joinTo(sb, ",",
+                transform = { it.string() })
+        sb.append(")")
+        sb.append(body.string())
+        return sb.toString()
+    }
+}
