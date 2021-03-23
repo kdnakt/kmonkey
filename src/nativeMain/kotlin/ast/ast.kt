@@ -155,10 +155,27 @@ data class FunctionLiteral(
         val sb = StringBuilder()
         sb.append(tokenLiteral)
         sb.append("(")
-        parameters?.joinTo(sb, ",",
+        parameters?.joinTo(sb, ", ",
                 transform = { it.string() })
         sb.append(")")
         sb.append(body.string())
+        return sb.toString()
+    }
+}
+
+data class CallExpression(
+        val token: Token,
+        val function: Expression?,
+        val arguments: List<Expression>?,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder()
+        sb.append(function?.string())
+        sb.append("(")
+        arguments?.joinTo(sb, ", ",
+                transform = { it.string() })
+        sb.append(")")
         return sb.toString()
     }
 }

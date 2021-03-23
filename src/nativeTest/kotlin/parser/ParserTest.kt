@@ -130,6 +130,8 @@ class ParserTest {
                 Test("3 > 5 == false", "((3 > 5) == false)"),
                 Test("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"),
                 Test("-(5 + 5)", "(-(5 + 5))"),
+                Test("a + add(b * c) + d", "((a + add((b * c))) + d)"),
+                Test("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))")
         )
         for (test in tests) {
             val lexer = Lexer(test.input)
@@ -256,6 +258,23 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun testCallExpressionParsing() {
+        val input = "add(1, 2 * 3, 4 + 5)"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val exp = stmt.expression as CallExpression
+        testIdentifier(exp.function, "add")
+        assertEquals(3, exp.arguments!!.size)
+        testLiteralExpression(exp.arguments!![0], 1)
+        testInfixExpression(exp.arguments!![1], 2, "*", 3)
+        testInfixExpression(exp.arguments!![2], 4, "+", 5)
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {
