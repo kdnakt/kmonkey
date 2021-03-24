@@ -36,21 +36,22 @@ class ParserTest {
 
     @Test
     fun testReturnStatement() {
-        val input = """
-            return 5;
-            return 10;
-            return 993322;
-        """.trimIndent()
-        val lexer = Lexer(input)
-        val parser = Parser(lexer)
-        val program = parser.parseProgram()
-        checkParseErrors(parser)
+        data class Test<T>(val input: String,
+                           val expectedRetVal: T)
+        val tests = listOf(
+                Test<Long>("return 10;", 10),
+                Test<String>("return a;", "a"),
+        )
+        for (test in tests) {
+            val lexer = Lexer(test.input)
+            val parser = Parser(lexer)
+            val program = parser.parseProgram()
+            checkParseErrors(parser)
 
-        assertEquals(3, program.statements.size,
-                "wrong program.statements count")
-        for (stmt in program.statements) {
-            assertTrue(stmt is ReturnStatement)
+            assertEquals(1, program.statements.size)
+            val stmt = program.statements[0] as ReturnStatement
             assertEquals("return", stmt.tokenLiteral)
+            testLiteralExpression(stmt.returnValue, test.expectedRetVal)
         }
     }
 
