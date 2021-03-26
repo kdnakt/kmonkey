@@ -26,7 +26,7 @@ val precedences = mapOf(
         TokenType.LPAREN to Precedence.CALL,
 )
 
-class Parser(val lexer: lexer.Lexer) {
+class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
     var curToken: token.Token? = null
     var peekToken: token.Token? = null
 
@@ -55,6 +55,7 @@ class Parser(val lexer: lexer.Lexer) {
     )
 
     init {
+        isTrace = trace
         // set curToken and peekToken
         nextToken()
         nextToken()
@@ -126,24 +127,34 @@ fun Parser.parseProgram(): Program {
 }
 
 fun Parser.parseExpressionStatement(): ExpressionStatement {
-    val stmt = ExpressionStatement(curToken!!, parseExpression(Precedence.LOWEST))
-    if (peekTokenIs(TokenType.SEMICOLON)) nextToken()
-    return stmt
+    val trace = trace("parseExpressionStatement")
+    try {
+        val stmt = ExpressionStatement(curToken!!, parseExpression(Precedence.LOWEST))
+        if (peekTokenIs(TokenType.SEMICOLON)) nextToken()
+        return stmt
+    } finally {
+        untrace(trace)
+    }
 }
 
 fun Parser.parseExpression(precedence: Precedence): Expression? {
-    val prefix = prefixParseFns[curToken!!.tokenType]
-    if (prefix == null) {
-        noPrefixParseFnError(curToken!!.tokenType)
-        return null
+    val trace = trace("parseExpression")
+    try {
+        val prefix = prefixParseFns[curToken!!.tokenType]
+        if (prefix == null) {
+            noPrefixParseFnError(curToken!!.tokenType)
+            return null
+        }
+        var leftExp = prefix()
+        while (!peekTokenIs(TokenType.SEMICOLON) && precedence < peekPrecedence()) {
+            val infix = infixParseFns[peekToken!!.tokenType] ?: return leftExp
+            nextToken()
+            leftExp = infix(leftExp)
+        }
+        return leftExp
+    } finally {
+        untrace(trace)
     }
-    var leftExp = prefix()
-    while (!peekTokenIs(TokenType.SEMICOLON) && precedence < peekPrecedence()) {
-        val infix = infixParseFns[peekToken!!.tokenType] ?: return leftExp
-        nextToken()
-        leftExp = infix(leftExp)
-    }
-    return leftExp
 }
 
 fun Parser.noPrefixParseFnError(t: TokenType) {
@@ -167,10 +178,15 @@ fun Parser.parseIntegerLiteral(): Expression {
 }
 
 fun Parser.parseInfixExpression(left: Expression?): Expression {
-    val token = curToken!!
-    val precedence = curPrecedence()
-    nextToken()
-    return InfixExpression(token, left, token.literal, parseExpression(precedence)!!)
+    val trace = trace("parseInfixExpression")
+    try {
+        val token = curToken!!
+        val precedence = curPrecedence()
+        nextToken()
+        return InfixExpression(token, left, token.literal, parseExpression(precedence)!!)
+    } finally {
+        untrace(trace)
+    }
 }
 
 fun Parser.curPrecedence(): Precedence {
@@ -180,13 +196,18 @@ fun Parser.curPrecedence(): Precedence {
 }
 
 fun Parser.parsePrefixExpression(): Expression {
-    val token = curToken!!
-    nextToken()
-    return PrefixExpression(
-            token,
-            token.literal,
-            parseExpression(Precedence.PREFIX)
-    )
+    val trace = trace("parsePrefixExpression")
+    try {
+        val token = curToken!!
+        nextToken()
+        return PrefixExpression(
+                token,
+                token.literal,
+                parseExpression(Precedence.PREFIX)
+        )
+    } finally {
+        untrace(trace)
+    }
 }
 
 fun Parser.parseBooleanExpression(): Expression {

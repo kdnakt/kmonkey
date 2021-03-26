@@ -6,7 +6,7 @@ import token.TokenType
 
 val PROMPT = ">> "
 
-fun start() {
+fun start(trace: Boolean) {
     while (true) {
         print(PROMPT)
         val str: String = readLine() ?: return

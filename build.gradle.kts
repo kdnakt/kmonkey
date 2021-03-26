@@ -20,6 +20,8 @@ kotlin {
     }
 
     nativeTarget.apply {
+        // For kotlinx-cli
+        compilations["main"].enableEndorsedLibs = true
         binaries {
             executable {
                 entryPoint = "main"

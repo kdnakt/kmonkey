@@ -6,6 +6,8 @@ private val traceIdentPraceholder = "\t"
 
 private fun identLevel() = traceIdentPraceholder.repeat(traceLevel)
 
+var isTrace = false
+
 private fun tracePrint(fs: String) {
     println("${identLevel()}$fs")
 }
