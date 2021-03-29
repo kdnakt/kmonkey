@@ -44,6 +44,20 @@ class EvaluatorTest {
             testIntegerObject(evaluated!!, test.expected)
         }
     }
+
+    @Test
+    fun testEvalBooleanExpression() {
+        data class Test(val input: String, val expected: Boolean)
+        val tests = listOf(
+                Test("true", true),
+                Test("false", false),
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.input)
+            testBooleanObject(evaluated!!, test.expected)
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {
