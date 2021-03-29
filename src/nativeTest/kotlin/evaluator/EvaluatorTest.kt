@@ -35,6 +35,8 @@ class EvaluatorTest {
         val tests = listOf(
                 Test("5", 5),
                 Test("10", 10),
+                Test("-5", -5),
+                Test("-10", -10)
         )
 
         for (test in tests) {

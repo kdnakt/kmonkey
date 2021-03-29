@@ -21,6 +21,7 @@ fun eval(node: Node?): Obj? = when(node) {
 
 fun evalPrefixExpression(operator: String, right: Obj?): Obj? = when(operator) {
     "!" -> evalBangOperator(right)
+    "-" -> evalMinusPrefixOperatorExpression(right)
     else -> NULL
 }
 
@@ -29,6 +30,14 @@ fun evalBangOperator(right: Obj?): Obj = when(right) {
     FALSE -> TRUE
     NULL -> TRUE
     else -> FALSE
+}
+
+fun evalMinusPrefixOperatorExpression(right: Obj?): Obj {
+    if (right?.type() != ObjectType.INTEGER) {
+        return NULL
+    }
+    val value = (right as IntegerObj).value
+    return IntegerObj(-value)
 }
 
 fun nativeBooleanToBoolObject(value: Boolean): Obj {
