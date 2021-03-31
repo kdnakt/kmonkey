@@ -51,6 +51,14 @@ class EvaluatorTest {
         val tests = listOf(
                 Test("true", true),
                 Test("false", false),
+                Test("1 < 2", true),
+                Test("1 > 2", false),
+                Test("1 == 1", true),
+                Test("1 != 1", false),
+                Test("true == true", true),
+                Test("false == false", true),
+                Test("true == false", false),
+                Test("true != false", true),
         )
 
         for (test in tests) {
