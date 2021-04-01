@@ -69,6 +69,23 @@ class EvaluatorTest {
             testBooleanObject(evaluated!!, test.expected)
         }
     }
+
+    @Test
+    fun testIfElseExpression() {
+        data class Test(val input: String, val expected: Long?)
+        val tests = listOf(
+                Test("if (true) { 10 }", 10),
+                Test("if (false) { 10 }", null),
+        )
+        for (test in tests) {
+            val evaluated = testEval(test.input)!!
+            if (test.expected != null) {
+                testIntegerObject(evaluated, test.expected)
+            } else {
+                testNullObj(evaluated)
+            }
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {
@@ -86,4 +103,8 @@ fun testBooleanObject(obj: Obj, expected: Boolean) {
 fun testIntegerObject(obj: Obj, expected: Long) {
     val result = obj as IntegerObj
     assertEquals(expected, result.value)
+}
+
+fun testNullObj(obj: Obj) {
+    assertEquals(NULL, obj)
 }

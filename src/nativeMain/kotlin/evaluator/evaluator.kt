@@ -21,6 +21,8 @@ fun eval(node: Node?): Obj? = when(node) {
         val right = eval(node.right)
         evalInfixExpression(node.operator, left, right)
     }
+    is IfExpression -> evalIfExpression(node!!)
+    is BlockStatement -> evalStatements(node.statements)
     else -> null
 }
 
@@ -85,5 +87,27 @@ fun evalIntegerInfixExpression(operator: String, left: Obj, right: Obj): Obj {
         "==" -> nativeBooleanToBoolObject(leftVal == rightVal)
         "!=" -> nativeBooleanToBoolObject(leftVal != rightVal)
         else -> NULL
+    }
+}
+
+fun evalIfExpression(ie: IfExpression): Obj? {
+    val condition = eval(ie.condition)
+    return when {
+        isTruthy(condition) -> {
+            eval(ie.consequence)
+        }
+        ie.alternative != null -> {
+            eval(ie.alternative)
+        }
+        else -> NULL
+    }
+}
+
+fun isTruthy(obj: Obj?): Boolean {
+    return when(obj) {
+        NULL -> false
+        TRUE -> true
+        FALSE -> false
+        else -> true
     }
 }
