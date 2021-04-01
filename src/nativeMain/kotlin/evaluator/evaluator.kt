@@ -16,6 +16,11 @@ fun eval(node: Node?): Obj? = when(node) {
         val right = eval(node.right)
         evalPrefixExpression(node.operator, right)
     }
+    is InfixExpression -> {
+        val left = eval(node.left)
+        val right = eval(node.right)
+        evalInfixExpression(node.operator, left, right)
+    }
     else -> null
 }
 
@@ -54,4 +59,31 @@ fun evalStatements(stmts: List<Statement>): Obj? {
         result = eval(stmt)
     }
     return result
+}
+
+fun evalInfixExpression(operator: String, left: Obj?, right: Obj?): Obj {
+    if (left?.type() == ObjectType.INTEGER && right?.type() == ObjectType.INTEGER) {
+        return evalIntegerInfixExpression(operator, left, right)
+    }
+    return when (operator) {
+        "==" -> nativeBooleanToBoolObject(left == right)
+        "!=" -> nativeBooleanToBoolObject(left != right)
+        else -> NULL
+    }
+}
+
+fun evalIntegerInfixExpression(operator: String, left: Obj, right: Obj): Obj {
+    val leftVal = (left as IntegerObj).value
+    val rightVal = (right as IntegerObj).value
+    return when (operator) {
+        "+" -> IntegerObj(leftVal + rightVal)
+        "-" -> IntegerObj(leftVal - rightVal)
+        "*" -> IntegerObj(leftVal * rightVal)
+        "/" -> IntegerObj(leftVal / rightVal)
+        "<" -> nativeBooleanToBoolObject(leftVal < rightVal)
+        ">" -> nativeBooleanToBoolObject(leftVal > rightVal)
+        "==" -> nativeBooleanToBoolObject(leftVal == rightVal)
+        "!=" -> nativeBooleanToBoolObject(leftVal != rightVal)
+        else -> NULL
+    }
 }

@@ -36,7 +36,10 @@ class EvaluatorTest {
                 Test("5", 5),
                 Test("10", 10),
                 Test("-5", -5),
-                Test("-10", -10)
+                Test("-10", -10),
+                Test("5 + 5 + 5 + 5 - 10", 10),
+                Test("2 * 2", 4),
+                Test("50 / 2 * 2 + 10", 60),
         )
 
         for (test in tests) {
