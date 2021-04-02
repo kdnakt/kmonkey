@@ -8,7 +8,7 @@ val TRUE = BooleanObj(true)
 val FALSE = BooleanObj(false)
 
 fun eval(node: Node?): Obj? = when(node) {
-    is Program -> evalStatements(node.statements)
+    is Program -> evalProgram(node)
     is ExpressionStatement -> eval(node.expression)
     is IntegerLiteral -> IntegerObj(node.value)
     is Bool -> nativeBooleanToBoolObject(node.value)
@@ -21,8 +21,9 @@ fun eval(node: Node?): Obj? = when(node) {
         val right = eval(node.right)
         evalInfixExpression(node.operator, left, right)
     }
-    is IfExpression -> evalIfExpression(node!!)
-    is BlockStatement -> evalStatements(node.statements)
+    is IfExpression -> evalIfExpression(node)
+    is BlockStatement -> evalBlockStatements(node.statements)
+    is ReturnStatement -> ReturnValue(eval(node.returnValue)!!)
     else -> null
 }
 
@@ -55,10 +56,24 @@ fun nativeBooleanToBoolObject(value: Boolean): Obj {
     }
 }
 
-fun evalStatements(stmts: List<Statement>): Obj? {
+fun evalProgram(program: Program): Obj? {
+    var result: Obj? = null
+    for (stmt in program.statements) {
+        result = eval(stmt)
+        if (result is ReturnValue) {
+            return result.value
+        }
+    }
+    return result
+}
+
+fun evalBlockStatements(stmts: List<Statement>): Obj? {
     var result: Obj? = null
     for (stmt in stmts) {
         result = eval(stmt)
+        if (result != null && result.type() == ObjectType.RETURN_VALUE) {
+            return result
+        }
     }
     return result
 }

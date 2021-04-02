@@ -86,6 +86,19 @@ class EvaluatorTest {
             }
         }
     }
+
+    @Test
+    fun testReturnStatements() {
+        data class Test(val input: String, val expected: Long)
+        val tests = listOf(
+                Test("return 10;", 10)
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.input)!!
+            testIntegerObject(evaluated, test.expected)
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {

@@ -9,6 +9,7 @@ enum class ObjectType {
     INTEGER,
     BOOLEAN,
     NULL,
+    RETURN_VALUE
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -24,5 +25,9 @@ data class BooleanObj(val value: Boolean): Obj {
 class NullObj(): Obj {
     override fun type() = ObjectType.NULL
     override fun inspect() = "null"
+}
 
+data class ReturnValue(val value: Obj): Obj {
+    override fun type() = ObjectType.RETURN_VALUE
+    override fun inspect() = value.inspect()
 }
