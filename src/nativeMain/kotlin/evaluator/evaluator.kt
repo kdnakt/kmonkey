@@ -27,10 +27,10 @@ fun eval(node: Node?): Obj? = when(node) {
     else -> null
 }
 
-fun evalPrefixExpression(operator: String, right: Obj?): Obj? = when(operator) {
+fun evalPrefixExpression(operator: String, right: Obj?): Obj = when(operator) {
     "!" -> evalBangOperator(right)
     "-" -> evalMinusPrefixOperatorExpression(right)
-    else -> NULL
+    else -> ErrorObj("unknown operator: $operator${right?.type()}")
 }
 
 fun evalBangOperator(right: Obj?): Obj = when(right) {
@@ -42,7 +42,7 @@ fun evalBangOperator(right: Obj?): Obj = when(right) {
 
 fun evalMinusPrefixOperatorExpression(right: Obj?): Obj {
     if (right?.type() != ObjectType.INTEGER) {
-        return NULL
+        return ErrorObj("unknown operator: -${right?.type()}")
     }
     val value = (right as IntegerObj).value
     return IntegerObj(-value)
@@ -60,8 +60,9 @@ fun evalProgram(program: Program): Obj? {
     var result: Obj? = null
     for (stmt in program.statements) {
         result = eval(stmt)
-        if (result is ReturnValue) {
-            return result.value
+        when (result) {
+            is ReturnValue -> return result.value
+            is ErrorObj -> return result
         }
     }
     return result
@@ -71,8 +72,12 @@ fun evalBlockStatements(stmts: List<Statement>): Obj? {
     var result: Obj? = null
     for (stmt in stmts) {
         result = eval(stmt)
-        if (result != null && result.type() == ObjectType.RETURN_VALUE) {
-            return result
+        if (result != null) {
+            val rt = result.type()
+            if (rt == ObjectType.RETURN_VALUE
+                    || rt == ObjectType.ERROR) {
+                return result
+            }
         }
     }
     return result
@@ -85,7 +90,14 @@ fun evalInfixExpression(operator: String, left: Obj?, right: Obj?): Obj {
     return when (operator) {
         "==" -> nativeBooleanToBoolObject(left == right)
         "!=" -> nativeBooleanToBoolObject(left != right)
-        else -> NULL
+        else -> {
+            val msg = "${left?.type()} $operator ${right?.type()}"
+            if (left?.type() != right?.type()) {
+                ErrorObj("type mismatch: $msg")
+            } else {
+                ErrorObj("unknown operator: $msg")
+            }
+        }
     }
 }
 
@@ -101,7 +113,7 @@ fun evalIntegerInfixExpression(operator: String, left: Obj, right: Obj): Obj {
         ">" -> nativeBooleanToBoolObject(leftVal > rightVal)
         "==" -> nativeBooleanToBoolObject(leftVal == rightVal)
         "!=" -> nativeBooleanToBoolObject(leftVal != rightVal)
-        else -> NULL
+        else -> ErrorObj("unknown operator: ${left.type()} $operator ${right.type()}")
     }
 }
 

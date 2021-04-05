@@ -9,7 +9,8 @@ enum class ObjectType {
     INTEGER,
     BOOLEAN,
     NULL,
-    RETURN_VALUE
+    RETURN_VALUE,
+    ERROR,
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -30,4 +31,9 @@ class NullObj(): Obj {
 data class ReturnValue(val value: Obj): Obj {
     override fun type() = ObjectType.RETURN_VALUE
     override fun inspect() = value.inspect()
+}
+
+data class ErrorObj(val message: String): Obj {
+    override fun type() = ObjectType.ERROR
+    override fun inspect() = "ERROR:$message"
 }

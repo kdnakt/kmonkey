@@ -1,8 +1,8 @@
 package evaluator
 
-import ast.Bool
 import lexer.Lexer
 import obj.BooleanObj
+import obj.ErrorObj
 import obj.IntegerObj
 import obj.Obj
 import parser.Parser
@@ -97,6 +97,22 @@ class EvaluatorTest {
         for (test in tests) {
             val evaluated = testEval(test.input)!!
             testIntegerObject(evaluated, test.expected)
+        }
+    }
+
+    @Test
+    fun testErrorHandling() {
+        val tests = mapOf(
+                "5 + true;" to "type mismatch: INTEGER + BOOLEAN",
+                "5 + true; 5;" to "type mismatch: INTEGER + BOOLEAN",
+                "-true;" to "unknown operator: -BOOLEAN",
+                "false + true;" to "unknown operator: BOOLEAN + BOOLEAN",
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.key)!!
+            val errObj = evaluated as ErrorObj
+            assertEquals(test.value, errObj.message)
         }
     }
 }
