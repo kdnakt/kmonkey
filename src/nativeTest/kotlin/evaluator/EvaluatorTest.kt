@@ -1,10 +1,7 @@
 package evaluator
 
 import lexer.Lexer
-import obj.BooleanObj
-import obj.ErrorObj
-import obj.IntegerObj
-import obj.Obj
+import obj.*
 import parser.Parser
 import parser.parseProgram
 import kotlin.test.Test
@@ -107,6 +104,7 @@ class EvaluatorTest {
                 "5 + true; 5;" to "type mismatch: INTEGER + BOOLEAN",
                 "-true;" to "unknown operator: -BOOLEAN",
                 "false + true;" to "unknown operator: BOOLEAN + BOOLEAN",
+                "foobar" to "identifier not found: foobar"
         )
 
         for (test in tests) {
@@ -115,13 +113,28 @@ class EvaluatorTest {
             assertEquals(test.value, errObj.message)
         }
     }
+
+    @Test
+    fun testLetStatements() {
+        val tests = mapOf<String, Long>(
+                "let a = 5; a;" to 5,
+                "let a = 5 * 5; a;" to 25,
+                "let a = 5; let b = a; b;" to 5,
+                "let a = 5; let b = a; let c = a + b + 5; c;" to 15,
+        )
+
+        for (test in tests) {
+            testIntegerObject(testEval(test.key)!!, test.value)
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {
     val lexer = Lexer(input)
     val parser = Parser(lexer)
     val program = parser.parseProgram()
-    return eval(program)
+    val env = newEnvironment()
+    return eval(program, env)
 }
 
 fun testBooleanObject(obj: Obj, expected: Boolean) {
