@@ -1,5 +1,6 @@
 package evaluator
 
+import ast.FunctionLiteral
 import lexer.Lexer
 import obj.*
 import parser.Parser
@@ -126,6 +127,17 @@ class EvaluatorTest {
         for (test in tests) {
             testIntegerObject(testEval(test.key)!!, test.value)
         }
+    }
+
+    @Test
+    fun testFunctionObject() {
+        val input = "fn(x) { x + 2; };"
+        val evaluated = testEval(input)!!
+        val fn = evaluated as FunctionLiteral
+        assertEquals(1, fn.parameters!!.size)
+        assertEquals("x", fn.parameters!![0].string())
+        val expectedBody = "(x + 2)"
+        assertEquals(expectedBody, fn.body.string())
     }
 }
 
