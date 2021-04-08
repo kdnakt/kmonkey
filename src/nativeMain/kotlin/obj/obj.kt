@@ -1,5 +1,8 @@
 package obj
 
+import ast.BlockStatement
+import ast.Identifier
+
 interface Obj {
     fun type(): ObjectType
     fun inspect(): String
@@ -11,6 +14,7 @@ enum class ObjectType {
     NULL,
     RETURN_VALUE,
     ERROR,
+    FUNCTION,
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -36,4 +40,21 @@ data class ReturnValue(val value: Obj): Obj {
 data class ErrorObj(val message: String): Obj {
     override fun type() = ObjectType.ERROR
     override fun inspect() = "ERROR:$message"
+}
+
+data class FunctionObj(
+        val parameters: List<Identifier>?,
+        val body: BlockStatement,
+        val env: Environment,
+): Obj {
+    override fun type() = ObjectType.FUNCTION
+    override fun inspect(): String {
+        val sb = StringBuilder("fn(")
+        parameters?.joinTo(sb, ", ",
+                transform = { it.string() })
+        sb.append(") {\n")
+        sb.append(body.string())
+        sb.append("\n}")
+        return sb.toString()
+    }
 }

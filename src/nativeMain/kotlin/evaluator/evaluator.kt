@@ -33,6 +33,7 @@ fun eval(node: Node?, env: Environment): Obj? = when(node) {
         env.set(node.name.value, value)
     }
     is Identifier -> evalIdentifier(node, env)
+    is FunctionLiteral -> FunctionObj(node.parameters, node.body, env)
     else -> null
 }
 
