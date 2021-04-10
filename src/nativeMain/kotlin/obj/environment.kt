@@ -1,9 +1,16 @@
 package obj
 
-data class Environment(val store: MutableMap<String, Obj?>)
+data class Environment(
+        val store: MutableMap<String, Obj?>,
+        val outer: Environment?,
+)
 
 fun Environment.get(name: String): Obj? {
-    return store[name]
+    val obj = store[name]
+    if (obj == null && outer != null) {
+        return outer.get(name)
+    }
+    return obj
 }
 
 fun Environment.set(name: String, obj: Obj?): Obj? {
@@ -12,5 +19,9 @@ fun Environment.set(name: String, obj: Obj?): Obj? {
 }
 
 fun newEnvironment(): Environment {
-    return Environment(mutableMapOf())
+    return Environment(mutableMapOf(), null)
+}
+
+fun newEnclosedEnvironment(outer: Environment): Environment {
+    return Environment(mutableMapOf(), outer)
 }

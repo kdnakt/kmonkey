@@ -139,6 +139,21 @@ class EvaluatorTest {
         val expectedBody = "(x + 2)"
         assertEquals(expectedBody, fn.body.string())
     }
+
+    @Test
+    fun testFunctionApplication() {
+        val tests = mapOf<String, Long>(
+                "let identity = fn(x) { x; }; identity(5);" to 5,
+                "let identity = fn(x) { return x; }; identity(5);" to 5,
+                "let double = fn(x) { x * 2; }; double(5);" to 10,
+                "let add = fn(x, y) { x + y; }; add(5, 5);" to 10,
+                "fn(x) { x; }(5)" to 5,
+        )
+
+        for (test in tests) {
+            testIntegerObject(testEval(test.key)!!, test.value)
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {

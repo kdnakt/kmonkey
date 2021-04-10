@@ -7,34 +7,43 @@ val NULL = NullObj()
 val TRUE = BooleanObj(true)
 val FALSE = BooleanObj(false)
 
-fun eval(node: Node?, env: Environment): Obj? = when(node) {
-    is Program -> evalProgram(node, env)
-    is ExpressionStatement -> eval(node.expression, env)
-    is IntegerLiteral -> IntegerObj(node.value)
-    is Bool -> nativeBooleanToBoolObject(node.value)
-    is PrefixExpression -> {
-        val right = eval(node.right, env)
-        if (isError(right)) right
-        evalPrefixExpression(node.operator, right)
+fun eval(node: Node?, env: Environment): Obj? {
+    return when (node) {
+        is Program -> evalProgram(node, env)
+        is ExpressionStatement -> eval(node.expression, env)
+        is IntegerLiteral -> IntegerObj(node.value)
+        is Bool -> nativeBooleanToBoolObject(node.value)
+        is PrefixExpression -> {
+            val right = eval(node.right, env)
+            if (isError(right)) return right
+            evalPrefixExpression(node.operator, right)
+        }
+        is InfixExpression -> {
+            val left = eval(node.left, env)
+            if (isError(left)) return left
+            val right = eval(node.right, env)
+            if (isError(right)) return right
+            evalInfixExpression(node.operator, left, right)
+        }
+        is IfExpression -> evalIfExpression(node, env)
+        is BlockStatement -> evalBlockStatements(node.statements, env)
+        is ReturnStatement -> ReturnValue(eval(node.returnValue, env)!!)
+        is LetStatement -> {
+            val value = eval(node.value, env)
+            if (isError(value)) return value
+            env.set(node.name.value, value)
+        }
+        is Identifier -> evalIdentifier(node, env)
+        is FunctionLiteral -> FunctionObj(node.parameters, node.body, env)
+        is CallExpression -> {
+            val function = eval(node.function, env)
+            if (isError(function)) return function
+            val args = evalExpressions(node.arguments, env)
+            if (args.size == 1 && isError(args[0])) return args[0]
+            return applyFunction(function, args)
+        }
+        else -> null
     }
-    is InfixExpression -> {
-        val left = eval(node.left, env)
-        if (isError(left)) left
-        val right = eval(node.right, env)
-        if (isError(right)) right
-        evalInfixExpression(node.operator, left, right)
-    }
-    is IfExpression -> evalIfExpression(node, env)
-    is BlockStatement -> evalBlockStatements(node.statements, env)
-    is ReturnStatement -> ReturnValue(eval(node.returnValue, env)!!)
-    is LetStatement -> {
-        val value = eval(node.value, env)
-        if (isError(value)) value
-        env.set(node.name.value, value)
-    }
-    is Identifier -> evalIdentifier(node, env)
-    is FunctionLiteral -> FunctionObj(node.parameters, node.body, env)
-    else -> null
 }
 
 fun evalPrefixExpression(operator: String, right: Obj?): Obj = when(operator) {
@@ -156,4 +165,40 @@ fun isError(obj: Obj?): Boolean {
 
 fun evalIdentifier(node: Identifier, env: Environment): Obj {
     return env.get(node.value)?: ErrorObj("identifier not found: ${node.value}")
+}
+
+fun evalExpressions(exps: List<Expression>?, env: Environment): List<Obj?> {
+    val result = mutableListOf<Obj?>()
+    if (exps == null) return result
+    for (e in exps) {
+        val evaluated = eval(e, env)
+        if (isError(evaluated)) {
+            return listOf(evaluated)
+        }
+        result.add(evaluated)
+    }
+    return result
+}
+
+fun applyFunction(fn: Obj?, args: List<Obj?>): Obj? {
+    if ((fn !is FunctionObj)) {
+        return ErrorObj("not a function: ${fn?.type()}")
+    }
+    val extendedEnv = extendFunctionEnv(fn, args)
+    val evaluated = eval(fn.body, extendedEnv)
+    return unwrapReturnValue(evaluated)
+}
+
+fun extendFunctionEnv(fn: FunctionObj, args: List<Obj?>): Environment {
+    val env = newEnclosedEnvironment(fn.env)
+    if (fn.parameters == null) return env
+    for (param in fn.parameters.withIndex()) {
+        env.set(param.value.value, args[param.index])
+    }
+    return env
+}
+
+fun unwrapReturnValue(obj: Obj?) = when(obj) {
+    is ReturnValue -> obj.value
+    else -> obj
 }
