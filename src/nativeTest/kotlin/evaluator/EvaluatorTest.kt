@@ -154,6 +154,20 @@ class EvaluatorTest {
             testIntegerObject(testEval(test.key)!!, test.value)
         }
     }
+
+    @Test
+    fun testClosures() {
+        val input = """
+            let newAdder = fn(x) {
+              fn (y) { x + y };
+            };
+
+            let addTwo = newAdder(2);
+            addTwo(3);
+        """.trimIndent()
+
+        testIntegerObject(testEval(input)!!, 5)
+    }
 }
 
 fun testEval(input: String): Obj? {
