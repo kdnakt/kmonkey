@@ -39,6 +39,8 @@ enum class TokenType(val tokenType: String) {
     IF("IF"),
     ELSE("ELSE"),
     RETURN("RETURN"),
+
+    STRING("STRING"),
 }
 
 val keywords = mapOf(

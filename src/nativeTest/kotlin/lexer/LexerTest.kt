@@ -25,6 +25,8 @@ class LexerTest {
             }
             10 == 10;
             10 != 9;
+            "foobar"
+            "foo bar"
         """.trimIndent()
         val tests = listOf(
             TokenType.LET to "let",
@@ -95,6 +97,8 @@ class LexerTest {
             TokenType.NOT_EQ to "!=",
             TokenType.INT to "9",
             TokenType.SEMICOLON to ";",
+            TokenType.STRING to "foobar",
+            TokenType.STRING to "foo bar",
             TokenType.EOF to "",
         )
         val lexer = Lexer(input)

@@ -57,6 +57,7 @@ fun Lexer.nextToken(): Token {
         '*' -> newToken(TokenType.ASTERISK, ch)
         '<' -> newToken(TokenType.LT, ch)
         '>' -> newToken(TokenType.GT, ch)
+        '"' -> Token(TokenType.STRING, readString())
         else -> {
             when {
                 isLetter(ch) -> {
@@ -102,6 +103,17 @@ private fun Lexer.readNumber(): String {
     val p = pos
     while (isDigit(ch)) {
         readChar()
+    }
+    return input.concatToString(p, pos)
+}
+
+private fun Lexer.readString(): String {
+    val p = pos + 1
+    while (true) {
+        readChar()
+        if (ch == null || ch == '"') {
+            break
+        }
     }
     return input.concatToString(p, pos)
 }
