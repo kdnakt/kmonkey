@@ -179,3 +179,11 @@ data class CallExpression(
         return sb.toString()
     }
 }
+
+data class StringLiteral(
+        val token: Token,
+        val value: String,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string() = token.literal
+}

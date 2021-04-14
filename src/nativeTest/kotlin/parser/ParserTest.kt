@@ -275,6 +275,21 @@ class ParserTest {
         testInfixExpression(exp.arguments!![1], 2, "*", 3)
         testInfixExpression(exp.arguments!![2], 4, "+", 5)
     }
+
+    @Test
+    fun testStringLiteral() {
+        val input = """
+            "hello world";
+        """.trimIndent()
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        val stmt = program.statements[0] as ExpressionStatement
+        val literal = stmt.expression as StringLiteral
+        assertEquals("hello world", literal.value)
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {

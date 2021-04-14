@@ -41,6 +41,7 @@ class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
         TokenType.LPAREN to ::parseGroupedExpression,
         TokenType.IF to ::parseIfExpression,
         TokenType.FUNCTION to ::parseFunctionExpression,
+        TokenType.STRING to ::parseStringLiteral,
     )
     val infixParseFns = mapOf<TokenType, (Expression?) -> Expression>(
         TokenType.PLUS to ::parseInfixExpression,
@@ -315,4 +316,8 @@ fun Parser.parseCallArguments(): List<Expression>? {
         return null
     }
     return args
+}
+
+fun Parser.parseStringLiteral(): Expression {
+    return StringLiteral(curToken!!, curToken!!.literal)
 }
