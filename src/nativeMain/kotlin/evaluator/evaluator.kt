@@ -42,6 +42,7 @@ fun eval(node: Node?, env: Environment): Obj? {
             if (args.size == 1 && isError(args[0])) return args[0]
             return applyFunction(function, args)
         }
+        is StringLiteral -> StringObj(node.value)
         else -> null
     }
 }
@@ -106,6 +107,9 @@ fun evalInfixExpression(operator: String, left: Obj?, right: Obj?): Obj {
     if (left?.type() == ObjectType.INTEGER && right?.type() == ObjectType.INTEGER) {
         return evalIntegerInfixExpression(operator, left, right)
     }
+    if (left?.type() == ObjectType.STRING && right?.type() == ObjectType.STRING) {
+        return evalStringInfixExpression(operator, left, right)
+    }
     return when (operator) {
         "==" -> nativeBooleanToBoolObject(left == right)
         "!=" -> nativeBooleanToBoolObject(left != right)
@@ -134,6 +138,15 @@ fun evalIntegerInfixExpression(operator: String, left: Obj, right: Obj): Obj {
         "!=" -> nativeBooleanToBoolObject(leftVal != rightVal)
         else -> ErrorObj("unknown operator: ${left.type()} $operator ${right.type()}")
     }
+}
+
+fun evalStringInfixExpression(operator: String, left: Obj, right: Obj): Obj {
+    if (operator != "+") {
+        return ErrorObj("unknown operator: ${left.type()} $operator ${right.type()}")
+    }
+    val leftVal = (left as StringObj).value
+    val rightVal = (right as StringObj).value
+    return StringObj(leftVal + rightVal)
 }
 
 fun evalIfExpression(ie: IfExpression, env: Environment): Obj? {

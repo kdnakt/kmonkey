@@ -105,7 +105,8 @@ class EvaluatorTest {
                 "5 + true; 5;" to "type mismatch: INTEGER + BOOLEAN",
                 "-true;" to "unknown operator: -BOOLEAN",
                 "false + true;" to "unknown operator: BOOLEAN + BOOLEAN",
-                "foobar" to "identifier not found: foobar"
+                "foobar" to "identifier not found: foobar",
+                """"Hello" - "World"""" to "unknown operator: STRING - STRING",
         )
 
         for (test in tests) {
@@ -167,6 +168,28 @@ class EvaluatorTest {
         """.trimIndent()
 
         testIntegerObject(testEval(input)!!, 5)
+    }
+
+    @Test
+    fun testStringLiteral() {
+        val input = """
+            "Hello World!"
+        """.trimIndent()
+
+        val evaluated = testEval(input)!!
+        val str = evaluated as StringObj
+        assertEquals("Hello World!", str.value)
+    }
+
+    @Test
+    fun testStringConcatenation() {
+        val input = """
+            "Hello" + " " + "World!"
+        """.trimIndent()
+
+        val evaluated = testEval(input)!!
+        val str = evaluated as StringObj
+        assertEquals("Hello World!", str.value)
     }
 }
 

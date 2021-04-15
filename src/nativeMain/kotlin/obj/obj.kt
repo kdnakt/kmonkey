@@ -15,6 +15,7 @@ enum class ObjectType {
     RETURN_VALUE,
     ERROR,
     FUNCTION,
+    STRING
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -57,4 +58,9 @@ data class FunctionObj(
         sb.append("\n}")
         return sb.toString()
     }
+}
+
+data class StringObj(val value: String): Obj {
+    override fun type() = ObjectType.STRING
+    override fun inspect() = value
 }
