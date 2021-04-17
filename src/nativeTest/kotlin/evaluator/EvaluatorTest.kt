@@ -7,6 +7,7 @@ import parser.Parser
 import parser.parseProgram
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class EvaluatorTest {
     @Test
@@ -190,6 +191,30 @@ class EvaluatorTest {
         val evaluated = testEval(input)!!
         val str = evaluated as StringObj
         assertEquals("Hello World!", str.value)
+    }
+
+    @Test
+    fun testBuiltinFunctions() {
+        data class Testcase<T>(val input: String,
+                           val expected: T)
+        val tests = listOf(
+            Testcase<Long>("""len("")""", 0),
+            Testcase<Long>("""len("four")""", 4),
+            Testcase<Long>("""len("hello world")""", 11),
+            Testcase<String>("len(1)", "argument to `len` not supported, got INTEGER"),
+            Testcase<String>("""len("one", "two")""", "wrong number of arguments. got=2, want=1"),
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.input)!!
+            when (test.expected) {
+                is Long -> testIntegerObject(evaluated, test.expected as Long)
+                is String -> {
+                    val errObj = evaluated as ErrorObj
+                    assertEquals(test.expected, errObj.message)
+                }
+            }
+        }
     }
 }
 
