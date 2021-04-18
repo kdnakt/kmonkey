@@ -177,7 +177,9 @@ fun isError(obj: Obj?): Boolean {
 }
 
 fun evalIdentifier(node: Identifier, env: Environment): Obj {
-    return env.get(node.value)?: ErrorObj("identifier not found: ${node.value}")
+    return env.get(node.value)?:
+            builtins[node.value]?:
+            ErrorObj("identifier not found: ${node.value}")
 }
 
 fun evalExpressions(exps: List<Expression>?, env: Environment): List<Obj?> {
@@ -194,12 +196,15 @@ fun evalExpressions(exps: List<Expression>?, env: Environment): List<Obj?> {
 }
 
 fun applyFunction(fn: Obj?, args: List<Obj?>): Obj? {
-    if ((fn !is FunctionObj)) {
-        return ErrorObj("not a function: ${fn?.type()}")
+    return when (fn) {
+        is FunctionObj -> {
+            val extendedEnv = extendFunctionEnv(fn, args)
+            val evaluated = eval(fn.body, extendedEnv)
+            return unwrapReturnValue(evaluated)
+        }
+        is Builtin -> fn.fn(args)
+        else -> ErrorObj("not a function: ${fn?.type()}")
     }
-    val extendedEnv = extendFunctionEnv(fn, args)
-    val evaluated = eval(fn.body, extendedEnv)
-    return unwrapReturnValue(evaluated)
 }
 
 fun extendFunctionEnv(fn: FunctionObj, args: List<Obj?>): Environment {

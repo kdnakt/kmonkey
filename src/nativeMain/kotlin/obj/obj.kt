@@ -15,7 +15,8 @@ enum class ObjectType {
     RETURN_VALUE,
     ERROR,
     FUNCTION,
-    STRING
+    STRING,
+    BUILTIN,
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -63,4 +64,9 @@ data class FunctionObj(
 data class StringObj(val value: String): Obj {
     override fun type() = ObjectType.STRING
     override fun inspect() = value
+}
+
+data class Builtin(val fn: (List<Obj?>) -> Obj): Obj {
+    override fun type() = ObjectType.BUILTIN
+    override fun inspect() = "builtin function"
 }
