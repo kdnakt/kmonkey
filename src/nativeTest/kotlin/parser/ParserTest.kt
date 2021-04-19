@@ -290,6 +290,24 @@ class ParserTest {
         val literal = stmt.expression as StringLiteral
         assertEquals("hello world", literal.value)
     }
+
+    @Test
+    fun testParsingArrayLiterals() {
+        val input = """
+            [1, 2 * 2, 3 + 3]
+        """.trimIndent()
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        val stmt = program.statements[0] as ExpressionStatement
+        val array = stmt.expression as ArrayLiteral
+        assertEquals(3, array.elements!!.size)
+        testIntegerLiteral(array.elements?.get(0), 1)
+        testInfixExpression(array.elements?.get(1), 2, "*", 2)
+        testInfixExpression(array.elements?.get(2), 3, "+", 3)
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {

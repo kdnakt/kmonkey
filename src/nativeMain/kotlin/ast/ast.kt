@@ -187,3 +187,33 @@ data class StringLiteral(
     override val tokenLiteral = token.literal
     override fun string() = token.literal
 }
+
+data class ArrayLiteral(
+        val token: Token,
+        val elements: List<Expression>?,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("[")
+        elements?.joinTo(sb, ", ",
+                transform = { it.string() })
+        sb.append("]")
+        return sb.toString()
+    }
+}
+
+data class IndexExpression(
+        val token: Token,
+        val left: Expression,
+        val index: Expression,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("(")
+        sb.append(left.string())
+        sb.append("[")
+        sb.append(index.string())
+        sb.append("])")
+        return sb.toString()
+    }
+}
