@@ -17,6 +17,7 @@ enum class ObjectType {
     FUNCTION,
     STRING,
     BUILTIN,
+    ARRAY,
 }
 
 data class IntegerObj(val value: Long): Obj {
@@ -69,4 +70,15 @@ data class StringObj(val value: String): Obj {
 data class Builtin(val fn: (List<Obj?>) -> Obj): Obj {
     override fun type() = ObjectType.BUILTIN
     override fun inspect() = "builtin function"
+}
+
+data class ArrayObj(val elements: List<Obj?>): Obj {
+    override fun type() = ObjectType.ARRAY
+    override fun inspect(): String {
+        val sb = StringBuilder("[")
+        elements.joinTo(sb, ", ",
+            transform = { it?.inspect() ?: "" })
+        sb.append("]")
+        return sb.toString()
+    }
 }

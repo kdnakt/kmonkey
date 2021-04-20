@@ -216,6 +216,18 @@ class EvaluatorTest {
             }
         }
     }
+
+    @Test
+    fun testArrayLiterals() {
+        val input = "[1, 2 * 2, 3 + 3]"
+        val evaluated = testEval(input)!!
+        val result = evaluated as ArrayObj
+
+        assertEquals(3, result.elements.size)
+        testIntegerObject(result.elements[0]!!, 1)
+        testIntegerObject(result.elements[1]!!, 4)
+        testIntegerObject(result.elements[2]!!, 6)
+    }
 }
 
 fun testEval(input: String): Obj? {

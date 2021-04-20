@@ -43,6 +43,11 @@ fun eval(node: Node?, env: Environment): Obj? {
             return applyFunction(function, args)
         }
         is StringLiteral -> StringObj(node.value)
+        is ArrayLiteral -> {
+            val elements = evalExpressions(node.elements, env)
+            if (elements.size == 1 && isError((elements[0]))) return elements[0]
+            return ArrayObj(elements)
+        }
         else -> null
     }
 }
