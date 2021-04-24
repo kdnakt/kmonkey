@@ -228,6 +228,25 @@ class EvaluatorTest {
         testIntegerObject(result.elements[1]!!, 4)
         testIntegerObject(result.elements[2]!!, 6)
     }
+
+    @Test
+    fun testArrayIndexExpressions() {
+        val tests = mapOf<String, Long?>(
+            "[1, 2, 3][0]" to 1,
+            "[1, 2, 3][1]" to 2,
+            "[1, 2, 3][2]" to 3,
+            "let myArray = [1, 2, 3]; myArray[2]" to 3,
+            "[1, 2, 3][3]" to null,
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.key)!!
+            when (val value = test.value) {
+                is Long -> testIntegerObject(evaluated, value)
+                else -> testNullObj(evaluated)
+            }
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {
@@ -248,6 +267,6 @@ fun testIntegerObject(obj: Obj, expected: Long) {
     assertEquals(expected, result.value)
 }
 
-fun testNullObj(obj: Obj) {
+private fun testNullObj(obj: Obj) {
     assertEquals(NULL, obj)
 }
