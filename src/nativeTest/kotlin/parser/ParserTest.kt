@@ -308,6 +308,23 @@ class ParserTest {
         testInfixExpression(array.elements?.get(1), 2, "*", 2)
         testInfixExpression(array.elements?.get(2), 3, "+", 3)
     }
+
+    @Test
+    fun testArrayIndexExpression() {
+        val input = "[1][0]"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val index = stmt.expression as IndexExpression
+        val array = index.left as ArrayLiteral
+        assertEquals(1, array.elements!!.size)
+        testIntegerLiteral(array.elements?.get(0), 1)
+        testIntegerLiteral(index.index, 0)
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {

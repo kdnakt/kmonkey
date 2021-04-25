@@ -12,6 +12,7 @@ enum class Precedence {
     PRODUCT, // *
     PREFIX, // -X or !X
     CALL, // myFunc()
+    INDEX, // array[index]
 }
 
 val precedences = mapOf(
@@ -24,6 +25,7 @@ val precedences = mapOf(
         TokenType.SLASH to Precedence.PRODUCT,
         TokenType.ASTERISK to Precedence.PRODUCT,
         TokenType.LPAREN to Precedence.CALL,
+        TokenType.LBRACKET to Precedence.INDEX,
 )
 
 class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
@@ -44,7 +46,7 @@ class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
         TokenType.STRING to ::parseStringLiteral,
         TokenType.LBRACKET to ::parseArrayLiteral,
     )
-    val infixParseFns = mapOf<TokenType, (Expression?) -> Expression>(
+    val infixParseFns = mapOf<TokenType, (Expression?) -> Expression?>(
         TokenType.PLUS to ::parseInfixExpression,
         TokenType.MINUS to ::parseInfixExpression,
         TokenType.ASTERISK to ::parseInfixExpression,
@@ -54,6 +56,7 @@ class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
         TokenType.GT to ::parseInfixExpression,
         TokenType.LT to ::parseInfixExpression,
         TokenType.LPAREN to ::parseCallExpression,
+        TokenType.LBRACKET to ::parseIndexExpression,
     )
 
     init {
@@ -324,4 +327,14 @@ fun Parser.parseExpressionList(end: TokenType): List<Expression>? {
         return null
     }
     return list
+}
+
+fun Parser.parseIndexExpression(left: Expression?): Expression? {
+    val token = curToken!!
+    nextToken()
+    val index = parseExpression(Precedence.LOWEST)
+    if (!expectPeek(TokenType.RBRACKET)) {
+        return null
+    }
+    return IndexExpression(token, left!!, index!!)
 }
