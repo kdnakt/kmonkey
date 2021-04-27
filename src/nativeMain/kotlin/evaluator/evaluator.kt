@@ -48,6 +48,13 @@ fun eval(node: Node?, env: Environment): Obj? {
             if (elements.size == 1 && isError((elements[0]))) return elements[0]
             return ArrayObj(elements)
         }
+        is IndexExpression -> {
+            val left = eval(node.left, env)
+            if (isError(left)) return left
+            val index = eval(node.index, env)
+            if (isError(index)) return index
+            return evalIndexExpression(left, index)
+        }
         else -> null
     }
 }
@@ -224,4 +231,23 @@ fun extendFunctionEnv(fn: FunctionObj, args: List<Obj?>): Environment {
 fun unwrapReturnValue(obj: Obj?) = when(obj) {
     is ReturnValue -> obj.value
     else -> obj
+}
+
+fun evalIndexExpression(left: Obj?, index: Obj?): Obj? {
+    return when {
+        left?.type() == ObjectType.ARRAY && index?.type() == ObjectType.INTEGER -> {
+            evalArrayIndexExpression(left, index)
+        }
+        else -> ErrorObj("index operator not supported: ${left?.type()}")
+    }
+}
+
+fun evalArrayIndexExpression(array: Obj, index: Obj): Obj? {
+    val arrayObj = array as ArrayObj
+    val idx = (index as IntegerObj).value
+    val max = arrayObj.elements.size - 1
+    if (idx < 0 || max < idx) {
+        return NULL
+    }
+    return arrayObj.elements[idx.toInt()]
 }
