@@ -67,7 +67,7 @@ data class StringObj(val value: String): Obj {
     override fun inspect() = value
 }
 
-data class Builtin(val fn: (List<Obj?>) -> Obj): Obj {
+data class Builtin(val fn: (List<Obj?>) -> Obj?): Obj {
     override fun type() = ObjectType.BUILTIN
     override fun inspect() = "builtin function"
 }

@@ -203,6 +203,7 @@ class EvaluatorTest {
             Testcase<Long>("""len("hello world")""", 11),
             Testcase<String>("len(1)", "argument to `len` not supported, got INTEGER"),
             Testcase<String>("""len("one", "two")""", "wrong number of arguments. got=2, want=1"),
+            Testcase<Long>("""len(["one", "two"])""", 2),
         )
 
         for (test in tests) {
