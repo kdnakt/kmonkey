@@ -204,6 +204,10 @@ class EvaluatorTest {
             Testcase<String>("len(1)", "argument to `len` not supported, got INTEGER"),
             Testcase<String>("""len("one", "two")""", "wrong number of arguments. got=2, want=1"),
             Testcase<Long>("""len(["one", "two"])""", 2),
+            Testcase<NullObj>("first([])", NULL),
+            Testcase<Long>("first([2, 3])", 2),
+            Testcase<String>("first(2, 3)", "wrong number of arguments. got=2, want=1"),
+            Testcase<String>("first(2)", "argument to `first` must be ARRAY, got INTEGER"),
         )
 
         for (test in tests) {
@@ -214,6 +218,7 @@ class EvaluatorTest {
                     val errObj = evaluated as ErrorObj
                     assertEquals(test.expected, errObj.message)
                 }
+                is NullObj -> testNullObj(evaluated)
             }
         }
     }

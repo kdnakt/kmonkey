@@ -13,6 +13,21 @@ fun builtinLen(args: List<Obj?>): Obj? {
     }
 }
 
+fun builtinFirst(args: List<Obj?>): Obj? {
+    if (args.size != 1) {
+        return ErrorObj("wrong number of arguments. got=${args.size}, want=1")
+    }
+    if (args[0]?.type() != ObjectType.ARRAY) {
+        return ErrorObj("argument to `first` must be ARRAY, got ${args[0]?.type()}")
+    }
+    val array = args[0] as ArrayObj
+    if (array.elements.isNotEmpty()) {
+        return array.elements.first()
+    }
+    return NULL
+}
+
 val builtins = mapOf(
     "len" to Builtin(::builtinLen),
+    "first" to Builtin(::builtinFirst),
 )
