@@ -208,6 +208,10 @@ class EvaluatorTest {
             Testcase<Long>("first([2, 3])", 2),
             Testcase<String>("first(2, 3)", "wrong number of arguments. got=2, want=1"),
             Testcase<String>("first(2)", "argument to `first` must be ARRAY, got INTEGER"),
+            Testcase<NullObj>("last([])", NULL),
+            Testcase<Long>("last([3, 2, 1])", 1),
+            Testcase<String>("last(2, 3)", "wrong number of arguments. got=2, want=1"),
+            Testcase<String>("last(2)", "argument to `last` must be ARRAY, got INTEGER"),
         )
 
         for (test in tests) {
