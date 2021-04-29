@@ -212,6 +212,10 @@ class EvaluatorTest {
             Testcase<Long>("last([3, 2, 1])", 1),
             Testcase<String>("last(2, 3)", "wrong number of arguments. got=2, want=1"),
             Testcase<String>("last(2)", "argument to `last` must be ARRAY, got INTEGER"),
+            Testcase<NullObj>("rest([])", NULL),
+            // Testcase<List<Long>>("rest([3, 2, 1])", listOf(2, 1)),
+            Testcase<String>("rest(2, 3)", "wrong number of arguments. got=2, want=1"),
+            Testcase<String>("rest(2)", "argument to `rest` must be ARRAY, got INTEGER"),
         )
 
         for (test in tests) {
@@ -225,6 +229,17 @@ class EvaluatorTest {
                 is NullObj -> testNullObj(evaluated)
             }
         }
+    }
+
+    @Test
+    fun testBuiltinRest() {
+        val input = "rest([3, 2, 1])"
+        val evaluated = testEval(input)!!
+        val result = evaluated as ArrayObj
+
+        assertEquals(2, result.elements.size)
+        testIntegerObject(result.elements[0]!!, 2)
+        testIntegerObject(result.elements[1]!!, 1)
     }
 
     @Test

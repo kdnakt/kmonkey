@@ -42,8 +42,23 @@ fun builtinLast(args: List<Obj?>): Obj? {
     return NULL
 }
 
+fun builtinRest(args: List<Obj?>): Obj? {
+    if (args.size != 1) {
+        return ErrorObj("wrong number of arguments. got=${args.size}, want=1")
+    }
+    if (args[0]?.type() != ObjectType.ARRAY) {
+        return ErrorObj("argument to `rest` must be ARRAY, got ${args[0]?.type()}")
+    }
+    val array = args[0] as ArrayObj
+    if (array.elements.isEmpty()) {
+        return NULL
+    }
+    return ArrayObj(array.elements.subList(1, array.elements.size))
+}
+
 val builtins = mapOf(
     "len" to Builtin(::builtinLen),
     "first" to Builtin(::builtinFirst),
     "last" to Builtin(::builtinLast),
+    "rest" to Builtin(::builtinRest),
 )
