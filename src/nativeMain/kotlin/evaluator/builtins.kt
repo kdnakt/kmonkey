@@ -56,9 +56,21 @@ fun builtinRest(args: List<Obj?>): Obj? {
     return ArrayObj(array.elements.subList(1, array.elements.size))
 }
 
+fun builtinPush(args: List<Obj?>): Obj? {
+    if (args.size != 2) {
+        return ErrorObj("wrong number of arguments. got=${args.size}, want=2")
+    }
+    if (args[0]?.type() != ObjectType.ARRAY) {
+        return ErrorObj("argument to `push` must be ARRAY, got ${args[0]?.type()}")
+    }
+    val array = args[0] as ArrayObj
+    return ArrayObj(array.elements + args[1])
+}
+
 val builtins = mapOf(
     "len" to Builtin(::builtinLen),
     "first" to Builtin(::builtinFirst),
     "last" to Builtin(::builtinLast),
     "rest" to Builtin(::builtinRest),
+    "push" to Builtin(::builtinPush),
 )

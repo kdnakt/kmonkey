@@ -216,6 +216,9 @@ class EvaluatorTest {
             // Testcase<List<Long>>("rest([3, 2, 1])", listOf(2, 1)),
             Testcase<String>("rest(2, 3)", "wrong number of arguments. got=2, want=1"),
             Testcase<String>("rest(2)", "argument to `rest` must be ARRAY, got INTEGER"),
+            // Testcase<List<Long>>("push([3, 2], 1)", listOf(3, 2, 1)),
+            Testcase<String>("push(2)", "wrong number of arguments. got=1, want=2"),
+            Testcase<String>("push(2, 1)", "argument to `push` must be ARRAY, got INTEGER"),
         )
 
         for (test in tests) {
@@ -240,6 +243,18 @@ class EvaluatorTest {
         assertEquals(2, result.elements.size)
         testIntegerObject(result.elements[0]!!, 2)
         testIntegerObject(result.elements[1]!!, 1)
+    }
+
+    @Test
+    fun testBuiltinPush() {
+        val input = "push([3, 2], 1)"
+        val evaluated = testEval(input)!!
+        val result = evaluated as ArrayObj
+
+        assertEquals(3, result.elements.size)
+        testIntegerObject(result.elements[0]!!, 3)
+        testIntegerObject(result.elements[1]!!, 2)
+        testIntegerObject(result.elements[2]!!, 1)
     }
 
     @Test
