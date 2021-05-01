@@ -43,6 +43,8 @@ enum class TokenType(val tokenType: String) {
     RETURN("RETURN"),
 
     STRING("STRING"),
+
+    COLON(":"),
 }
 
 val keywords = mapOf(

@@ -60,6 +60,7 @@ fun Lexer.nextToken(): Token {
         '"' -> Token(TokenType.STRING, readString())
         '[' -> newToken(TokenType.LBRACKET, ch)
         ']' -> newToken(TokenType.RBRACKET, ch)
+        ':' -> newToken(TokenType.COLON, ch)
         else -> {
             when {
                 isLetter(ch) -> {
