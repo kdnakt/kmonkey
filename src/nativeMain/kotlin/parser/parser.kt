@@ -45,6 +45,7 @@ class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
         TokenType.FUNCTION to ::parseFunctionExpression,
         TokenType.STRING to ::parseStringLiteral,
         TokenType.LBRACKET to ::parseArrayLiteral,
+        TokenType.LBRACE to ::parseHashLiteral,
     )
     val infixParseFns = mapOf<TokenType, (Expression?) -> Expression?>(
         TokenType.PLUS to ::parseInfixExpression,
@@ -337,4 +338,31 @@ fun Parser.parseIndexExpression(left: Expression?): Expression? {
         return null
     }
     return IndexExpression(token, left!!, index!!)
+}
+
+fun Parser.parseHashLiteral(): Expression? {
+    val curToken = curToken!!
+    val pairs = mutableMapOf<Expression, Expression>()
+
+    while (!peekTokenIs(TokenType.RBRACE)) {
+        nextToken()
+        val key = parseExpression(Precedence.LOWEST)
+        if (!expectPeek(TokenType.COLON)) {
+            return null
+        }
+
+        nextToken()
+        val value = parseExpression(Precedence.LOWEST)
+        pairs[key!!] = value!!
+
+        if (!peekTokenIs(TokenType.RBRACE) && !expectPeek(TokenType.COMMA)) {
+            return null
+        }
+    }
+
+    if (!expectPeek(TokenType.RBRACE)) {
+        return null
+    }
+
+    return HashLiteral(curToken, pairs)
 }

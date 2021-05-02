@@ -325,6 +325,32 @@ class ParserTest {
         testIntegerLiteral(array.elements?.get(0), 1)
         testIntegerLiteral(index.index, 0)
     }
+
+    @Test
+    fun testParsingHashLiteralsStringKeys() {
+        val input = """
+            {"one": 1, "two": 2, "three": 3}
+        """.trimIndent()
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        val stmt = program.statements[0] as ExpressionStatement
+        val hash = stmt.expression as HashLiteral
+        assertEquals(3, hash.pairs.size)
+        val expected = mapOf<String, Long>(
+            "one" to 1,
+            "two" to 2,
+            "three" to 3,
+        )
+        for (pair in hash.pairs) {
+            val literal = pair.key as StringLiteral
+            val expectedValue = expected[literal.string()]
+            testIntegerLiteral(pair.value, expectedValue!!)
+        }
+    }
+
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {

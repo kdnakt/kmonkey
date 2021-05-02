@@ -217,3 +217,17 @@ data class IndexExpression(
         return sb.toString()
     }
 }
+
+data class HashLiteral(
+    val token: Token, // '{'
+    val pairs: Map<Expression, Expression>
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder("{")
+        pairs.map { "${it.key.string()}:${it.value.string()}" }
+            .joinTo(sb, ", ")
+        sb.append("}")
+        return sb.toString()
+    }
+}
