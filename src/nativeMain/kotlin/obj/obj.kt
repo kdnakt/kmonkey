@@ -8,6 +8,10 @@ interface Obj {
     fun inspect(): String
 }
 
+interface Hashable {
+    fun hashKey(): HashKey
+}
+
 enum class ObjectType {
     INTEGER,
     BOOLEAN,
@@ -20,14 +24,23 @@ enum class ObjectType {
     ARRAY,
 }
 
-data class IntegerObj(val value: Long): Obj {
+data class IntegerObj(val value: Long): Obj, Hashable {
     override fun type() = ObjectType.INTEGER
     override fun inspect() = value.toString()
+    override fun hashKey() = HashKey(type(), value)
 }
 
-data class BooleanObj(val value: Boolean): Obj {
+data class BooleanObj(val value: Boolean): Obj, Hashable {
     override fun type() = ObjectType.BOOLEAN
     override fun inspect() = value.toString()
+    override fun hashKey(): HashKey {
+        val longValue = if (value) {
+            1L
+        } else {
+            0L
+        }
+        return HashKey(type(), longValue)
+    }
 }
 
 class NullObj(): Obj {
@@ -62,9 +75,10 @@ data class FunctionObj(
     }
 }
 
-data class StringObj(val value: String): Obj {
+data class StringObj(val value: String): Obj, Hashable {
     override fun type() = ObjectType.STRING
     override fun inspect() = value
+    override fun hashKey() = HashKey(type(), value.hashCode().toLong())
 }
 
 data class Builtin(val fn: (List<Obj?>) -> Obj?): Obj {
@@ -82,3 +96,8 @@ data class ArrayObj(val elements: List<Obj?>): Obj {
         return sb.toString()
     }
 }
+
+data class HashKey(
+    val type: ObjectType,
+    val value: Long,
+)
