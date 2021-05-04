@@ -8,6 +8,7 @@ import parser.parseProgram
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.fail
 
 class EvaluatorTest {
     @Test
@@ -108,6 +109,7 @@ class EvaluatorTest {
                 "false + true;" to "unknown operator: BOOLEAN + BOOLEAN",
                 "foobar" to "identifier not found: foobar",
                 """"Hello" - "World"""" to "unknown operator: STRING - STRING",
+                """{"name": "Monkey"}[fn(x) { x }];""" to "unusable as hash key: FUNCTION"
         )
 
         for (test in tests) {
@@ -285,6 +287,37 @@ class EvaluatorTest {
                 is Long -> testIntegerObject(evaluated, value)
                 else -> testNullObj(evaluated)
             }
+        }
+    }
+
+    @Test
+    fun testHashLiterals() {
+        val input = """
+            let two = "two";
+            {
+                "one": 10 - 9,
+                two: 1 + 1,
+                "thr" + "ee": 6 / 2,
+                4: 4,
+                true: 5,
+                false: 6,
+            }
+        """.trimIndent()
+        val evaluated = testEval(input)!!
+        val result = evaluated as Hash
+        val expected = mapOf<HashKey, Long>(
+            StringObj("one").hashKey() to 1,
+            StringObj("two").hashKey() to 2,
+            StringObj("three").hashKey() to 3,
+            IntegerObj(4).hashKey() to 4,
+            TRUE.hashKey() to 5,
+            FALSE.hashKey() to 6,
+        )
+
+        assertEquals(expected.size, result.pairs.size)
+        expected.forEach {
+            val pair = result.pairs[it.key] ?: fail("no pair for given key in pairs")
+            testIntegerObject(pair.value, it.value)
         }
     }
 }

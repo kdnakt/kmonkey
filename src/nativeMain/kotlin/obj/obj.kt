@@ -22,6 +22,7 @@ enum class ObjectType {
     STRING,
     BUILTIN,
     ARRAY,
+    HASH,
 }
 
 data class IntegerObj(val value: Long): Obj, Hashable {
@@ -101,3 +102,21 @@ data class HashKey(
     val type: ObjectType,
     val value: Long,
 )
+
+data class HashPair(
+    val key: Obj,
+    val value: Obj,
+)
+
+data class Hash(
+    val pairs: Map<HashKey, HashPair>
+): Obj {
+    override fun type() = ObjectType.HASH
+    override fun inspect(): String {
+        val sb = StringBuilder("{")
+        pairs.values.joinTo(sb, ", ",
+            transform = { "${it.key.inspect()}: ${it.value.inspect()}" })
+        sb.append("}")
+        return sb.toString()
+    }
+}

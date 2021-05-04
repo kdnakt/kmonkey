@@ -55,6 +55,7 @@ fun eval(node: Node?, env: Environment): Obj? {
             if (isError(index)) return index
             return evalIndexExpression(left, index)
         }
+        is HashLiteral -> evalHashLiteral(node, env)
         else -> null
     }
 }
@@ -238,6 +239,9 @@ fun evalIndexExpression(left: Obj?, index: Obj?): Obj? {
         left?.type() == ObjectType.ARRAY && index?.type() == ObjectType.INTEGER -> {
             evalArrayIndexExpression(left, index)
         }
+        left?.type() == ObjectType.HASH -> {
+            evalHashIndexExpression(left, index)
+        }
         else -> ErrorObj("index operator not supported: ${left?.type()}")
     }
 }
@@ -250,4 +254,32 @@ fun evalArrayIndexExpression(array: Obj, index: Obj): Obj? {
         return NULL
     }
     return arrayObj.elements[idx.toInt()]
+}
+
+fun evalHashLiteral(node: HashLiteral, env: Environment): Obj? {
+    val pairs = mutableMapOf<HashKey, HashPair>()
+    node.pairs.entries.forEach {
+        val key = eval(it.key, env)
+        if (isError(key)) return key
+        if (key !is Hashable) {
+            return ErrorObj("unusable as hash key: ${key?.type()}")
+        }
+
+        val value = eval(it.value, env)
+        if (isError(value)) return value
+        val hashed = (key as Hashable).hashKey()
+        pairs[hashed] = HashPair(key, value!!)
+    }
+
+    return Hash(pairs)
+}
+
+fun evalHashIndexExpression(hash: Obj, index: Obj?): Obj {
+    val hashObj = hash as Hash
+    if (index !is Hashable) {
+        return ErrorObj("unusable as hash key: ${index?.type()}")
+    }
+    val key = index as Hashable
+    val pair = hashObj.pairs[key.hashKey()] ?: return NULL
+    return pair.value
 }
