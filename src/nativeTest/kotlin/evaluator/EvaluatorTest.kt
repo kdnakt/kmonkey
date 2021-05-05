@@ -320,6 +320,27 @@ class EvaluatorTest {
             testIntegerObject(pair.value, it.value)
         }
     }
+
+    @Test
+    fun testHashIndexExpression() {
+        val tests = mapOf<String, Long?>(
+            """{"foo": 5}["foo"]""" to 5,
+            """{"foo": 5}["bar"]""" to null,
+            """let key = "foo"; {"foo": 5}[key]""" to 5,
+            """{}["foo"]""" to null,
+            "{5: 5}[5]" to 5,
+            "{true: 5}[true]" to 5,
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.key)!!
+            if (test.value != null) {
+                testIntegerObject(evaluated, test.value!!)
+            } else {
+                testNullObj(evaluated)
+            }
+        }
+    }
 }
 
 fun testEval(input: String): Obj? {
