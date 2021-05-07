@@ -1,6 +1,9 @@
 package repl
 
+import evaluator.eval
+import lexer.newToken
 import lexer.nextToken
+import obj.newEnvironment
 import parser.parseProgram
 import platform.posix.scanf
 import token.TokenType
@@ -8,6 +11,7 @@ import token.TokenType
 val PROMPT = ">> "
 
 fun start(trace: Boolean) {
+    val env = newEnvironment()
     while (true) {
         print(PROMPT)
         val str: String = readLine() ?: return
@@ -19,7 +23,9 @@ fun start(trace: Boolean) {
             continue
         }
 
-        println(program.string())
+        eval(program, env)?.let {
+            println(it.inspect())
+        }
     }
 }
 
