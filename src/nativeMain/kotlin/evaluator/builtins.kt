@@ -67,10 +67,18 @@ fun builtinPush(args: List<Obj?>): Obj? {
     return ArrayObj(array.elements + args[1])
 }
 
+fun builtinPuts(args: List<Obj?>): Obj? {
+    for (arg in args) {
+        println(arg?.inspect())
+    }
+    return NULL
+}
+
 val builtins = mapOf(
     "len" to Builtin(::builtinLen),
     "first" to Builtin(::builtinFirst),
     "last" to Builtin(::builtinLast),
     "rest" to Builtin(::builtinRest),
     "push" to Builtin(::builtinPush),
+    "puts" to Builtin(::builtinPuts),
 )
