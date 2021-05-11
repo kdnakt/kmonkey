@@ -36,6 +36,11 @@ fun eval(node: Node?, env: Environment): Obj? {
         is Identifier -> evalIdentifier(node, env)
         is FunctionLiteral -> FunctionObj(node.parameters, node.body, env)
         is CallExpression -> {
+            if (node.function?.tokenLiteral == "quote") {
+                node.arguments?.let {
+                    return quote(it[0])
+                }
+            }
             val function = eval(node.function, env)
             if (isError(function)) return function
             val args = evalExpressions(node.arguments, env)

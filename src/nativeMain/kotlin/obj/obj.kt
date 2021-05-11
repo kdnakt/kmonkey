@@ -2,6 +2,7 @@ package obj
 
 import ast.BlockStatement
 import ast.Identifier
+import ast.Node
 
 interface Obj {
     fun type(): ObjectType
@@ -23,6 +24,7 @@ enum class ObjectType {
     BUILTIN,
     ARRAY,
     HASH,
+    QUOTE,
 }
 
 data class IntegerObj(val value: Long): Obj, Hashable {
@@ -119,4 +121,11 @@ data class Hash(
         sb.append("}")
         return sb.toString()
     }
+}
+
+data class Quote(
+    val node: Node,
+): Obj {
+    override fun type() = ObjectType.QUOTE
+    override fun inspect() = "QUOTE(${node.string()})"
 }
