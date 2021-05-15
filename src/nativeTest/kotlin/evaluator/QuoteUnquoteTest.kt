@@ -17,4 +17,20 @@ class QuoteUnquoteTest {
             assertEquals(test.value, quote.node.string())
         }
     }
+
+    @Test
+    fun testQuoteUnquote() {
+        val tests = mapOf(
+            "quote(unquote(4))" to "4",
+            "quote(unquote(4 + 4))" to "8",
+            "quote(8 + unquote(4 + 4))" to "(8 + 8)",
+            "quote(unquote(4 + 4) + 8)" to "(8 + 8)",
+        )
+
+        for (test in tests) {
+            val evaluated = testEval(test.key)!!
+            val quote = evaluated as Quote
+            assertEquals(test.value, quote.node.string())
+        }
+    }
 }
