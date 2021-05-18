@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 class AstTest {
     @Test
     fun testString() {
-        val statements = listOf<Statement>(
+        val statements = mutableListOf<Statement>(
                 LetStatement(
                         Token(TokenType.LET, "let"),
                         Identifier(

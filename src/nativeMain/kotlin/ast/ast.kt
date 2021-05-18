@@ -13,7 +13,7 @@ interface Statement: Node {
 interface Expression: Node {
 }
 
-data class Program(val statements: List<Statement>): Node {
+data class Program(val statements: MutableList<Statement>): Node {
     override val tokenLiteral = when {
         statements.isNotEmpty() -> statements[0].tokenLiteral
         else -> ""
@@ -133,7 +133,7 @@ data class IfExpression(
 
 data class BlockStatement(
         val token: Token,
-        val statements: List<Statement>,
+        val statements: MutableList<Statement>,
 ): Statement {
     override val tokenLiteral = token.literal
     override fun string(): String {
