@@ -57,6 +57,33 @@ fun modify(node: Node?, modifier: (Node?) -> Node): Node {
                 modify(node.value, modifier) as Expression
             )
         }
+        is FunctionLiteral -> {
+            val params = mutableListOf<Identifier>()
+            if (node.parameters != null) {
+                for (param in node.parameters) {
+                    params.add(modify(param, modifier) as Identifier)
+                }
+            }
+            FunctionLiteral(node.token, params, modify(node.body, modifier) as BlockStatement)
+        }
+        is ArrayLiteral -> {
+            val elements = mutableListOf<Expression>()
+            if (node.elements != null) {
+                for (elem in node.elements) {
+                    elements.add(modify(elem, modifier) as Expression)
+                }
+            }
+            ArrayLiteral(node.token, elements)
+        }
+        is HashLiteral -> {
+            val newPairs = mutableMapOf<Expression, Expression>()
+            for (pair in node.pairs) {
+                val newKey = modify(pair.key, modifier) as Expression
+                val newVal = modify(pair.value, modifier) as Expression
+                newPairs[newKey] = newVal
+            }
+            HashLiteral(node.token, newPairs)
+        }
         else -> node
     }
     return modifier(newNode)

@@ -56,9 +56,9 @@ class ModifyTest {
             one() to one(),
             one() to one(),
         ))
-        modify(hashLiteral, ::turnOneIntoTwo)
+        val modified = modify(hashLiteral, ::turnOneIntoTwo) as HashLiteral
 
-        for (pair in hashLiteral.pairs) {
+        for (pair in modified.pairs) {
             val key = pair.key as IntegerLiteral
             assertEquals(2, key.value)
             val value = pair.value as IntegerLiteral
