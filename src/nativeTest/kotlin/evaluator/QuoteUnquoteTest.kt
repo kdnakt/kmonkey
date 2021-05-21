@@ -14,7 +14,7 @@ class QuoteUnquoteTest {
         for (test in tests) {
             val evaluated = testEval(test.key)!!
             val quote = evaluated as Quote
-            assertEquals(test.value, quote.node.string())
+            assertEquals(test.value, quote.node?.string())
         }
     }
 
@@ -45,7 +45,7 @@ class QuoteUnquoteTest {
         for (test in tests) {
             val evaluated = testEval(test.key)!!
             val quote = evaluated as Quote
-            assertEquals(test.value, quote.node.string())
+            assertEquals(test.value, quote.node?.string())
         }
     }
 }

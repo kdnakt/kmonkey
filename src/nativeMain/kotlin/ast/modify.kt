@@ -1,6 +1,6 @@
 package ast
 
-fun modify(node: Node?, modifier: (Node?) -> Node): Node {
+fun modify(node: Node?, modifier: (Node?) -> Node?): Node? {
     val newNode = when(node) {
         is Program -> {
             for ((i, stmt) in node.statements.withIndex()) {

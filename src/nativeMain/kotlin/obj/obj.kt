@@ -124,8 +124,8 @@ data class Hash(
 }
 
 data class Quote(
-    val node: Node,
+    val node: Node?,
 ): Obj {
     override fun type() = ObjectType.QUOTE
-    override fun inspect() = "QUOTE(${node.string()})"
+    override fun inspect() = "QUOTE(${node?.string()})"
 }

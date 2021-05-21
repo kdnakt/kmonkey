@@ -38,7 +38,7 @@ fun eval(node: Node?, env: Environment): Obj? {
         is CallExpression -> {
             if (node.function?.tokenLiteral == "quote") {
                 node.arguments?.let {
-                    return quote(it[0])
+                    return quote(it[0], env)
                 }
             }
             val function = eval(node.function, env)
