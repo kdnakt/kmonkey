@@ -29,6 +29,7 @@ class LexerTest {
             "foo bar"
             [1, 2];
             {"foo": "bar"}
+            macro(x, y) { x + y; };
         """.trimIndent()
         val tests = listOf(
             TokenType.LET to "let",
@@ -112,6 +113,19 @@ class LexerTest {
             TokenType.COLON to ":",
             TokenType.STRING to "bar",
             TokenType.RBRACE to "}",
+            TokenType.MACRO to "macro",
+            TokenType.LPAREN to "(",
+            TokenType.IDENT to "x",
+            TokenType.COMMA to ",",
+            TokenType.IDENT to "y",
+            TokenType.RPAREN to ")",
+            TokenType.LBRACE to "{",
+            TokenType.IDENT to "x",
+            TokenType.PLUS to "+",
+            TokenType.IDENT to "y",
+            TokenType.SEMICOLON to ";",
+            TokenType.RBRACE to "}",
+            TokenType.SEMICOLON to ";",
             TokenType.EOF to "",
         )
         val lexer = Lexer(input)

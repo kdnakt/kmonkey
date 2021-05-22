@@ -45,6 +45,8 @@ enum class TokenType(val tokenType: String) {
     STRING("STRING"),
 
     COLON(":"),
+
+    MACRO("MACRO")
 }
 
 val keywords = mapOf(
@@ -55,6 +57,7 @@ val keywords = mapOf(
         "if" to TokenType.IF,
         "else" to TokenType.ELSE,
         "return" to TokenType.RETURN,
+        "macro" to TokenType.MACRO,
 )
 
 fun lookUpIdent(ident: String): TokenType {
