@@ -6,8 +6,8 @@ import token.Token
 import token.TokenType
 
 fun quote(node: Node, env: Environment): Obj {
-    val node = evalUnquoteCalls(node, env)
-    return Quote(node)
+    val evaluated = evalUnquoteCalls(node, env)
+    return Quote(evaluated)
 }
 
 fun evalUnquoteCalls(quoted: Node, env: Environment): Node? {
