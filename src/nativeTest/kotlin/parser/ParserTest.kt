@@ -351,6 +351,24 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun testMacroLiteralParsing() {
+        val input = "macro(x, y) { x + y; }"
+        val lexer = Lexer(input)
+        val parser = Parser(lexer)
+        val program = parser.parseProgram()
+        checkParseErrors(parser)
+
+        assertEquals(1, program.statements.size)
+        val stmt = program.statements[0] as ExpressionStatement
+        val macro = stmt.expression as MacroLiteral
+        assertEquals(2, macro.parameters?.size)
+        testLiteralExpression(macro.parameters?.get(0), "x")
+        testLiteralExpression(macro.parameters?.get(1), "y")
+        assertEquals(1, macro.body.statements.size)
+        val bodyStmt = macro.body.statements[0] as ExpressionStatement
+        testInfixExpression(bodyStmt.expression, "x", "+", "y")
+    }
 }
 
 fun testLetStatement(stmt: Statement, expected: String) {

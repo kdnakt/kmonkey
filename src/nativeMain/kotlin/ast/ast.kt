@@ -231,3 +231,19 @@ data class HashLiteral(
         return sb.toString()
     }
 }
+
+data class MacroLiteral(
+        val token: Token, // fn
+        val parameters: List<Identifier>?,
+        val body: BlockStatement,
+): Expression {
+    override val tokenLiteral = token.literal
+    override fun string(): String {
+        val sb = StringBuilder(tokenLiteral)
+        sb.append("(")
+        parameters?.joinTo(sb, transform = { it.string() })
+        sb.append(")")
+        sb.append(body.string())
+        return sb.toString()
+    }
+}
