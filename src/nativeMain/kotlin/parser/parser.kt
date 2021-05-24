@@ -46,6 +46,7 @@ class Parser(val lexer: lexer.Lexer, trace: Boolean = false) {
         TokenType.STRING to ::parseStringLiteral,
         TokenType.LBRACKET to ::parseArrayLiteral,
         TokenType.LBRACE to ::parseHashLiteral,
+        TokenType.MACRO to ::parseMacroLiteral,
     )
     val infixParseFns = mapOf<TokenType, (Expression?) -> Expression?>(
         TokenType.PLUS to ::parseInfixExpression,
@@ -365,4 +366,17 @@ fun Parser.parseHashLiteral(): Expression? {
     }
 
     return HashLiteral(curToken, pairs)
+}
+
+fun Parser.parseMacroLiteral(): Expression? {
+    val token = curToken!!
+    if (!expectPeek(TokenType.LPAREN)) {
+        return null
+    }
+    val parameters = parseFunctionParameters()
+    if (!expectPeek(TokenType.LBRACE)) {
+        return null
+    }
+    val body = parseBlockStatement()
+    return MacroLiteral(token, parameters, body)
 }
