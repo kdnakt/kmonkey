@@ -25,6 +25,7 @@ enum class ObjectType {
     ARRAY,
     HASH,
     QUOTE,
+    MACRO,
 }
 
 data class IntegerObj(val value: Long): Obj, Hashable {
@@ -128,4 +129,20 @@ data class Quote(
 ): Obj {
     override fun type() = ObjectType.QUOTE
     override fun inspect() = "QUOTE(${node?.string()})"
+}
+
+data class Macro(
+    val parameters: List<Identifier>,
+    val body: BlockStatement,
+    val env: Environment,
+): Obj {
+    override fun type() = ObjectType.MACRO
+    override fun inspect(): String {
+        val sb = StringBuilder("macro(")
+        parameters.joinTo(sb, transform = { it.string() })
+        sb.append(") {\n")
+        sb.append(body.string())
+        sb.append("\n}")
+        return sb.toString()
+    }
 }
