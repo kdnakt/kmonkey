@@ -35,6 +35,31 @@ class MacroExpansionTest {
         assertEquals("y", macro.parameters[1].string())
         assertEquals("(x + y)", macro.body.string())
     }
+
+    @Test
+    fun testExpandMacros() {
+        val tests = mapOf(
+                """
+                    let infixExpression = macro() { quote(1 + 2); };
+                    infixExpression();
+                """.trimIndent() to "(1 + 2)",
+                """
+                    let reverse = macro(a, b) { quote(unquote(b) - unquote(a)); };
+                    reverse(2 + 2, 10 - 5);
+                """.trimIndent() to "(10 - 5) - (2 + 2)",
+        )
+
+        for (test in tests) {
+            val expected = testParseProgram(test.value)
+            val program = testParseProgram(test.key)
+
+            val env = newEnvironment()
+            defineMacros(program, env)
+            val expanded = expandMacros(program, env)
+
+            assertEquals(expected.string(), expanded?.string())
+        }
+    }
 }
 
 private fun testParseProgram(input: String): Program {
