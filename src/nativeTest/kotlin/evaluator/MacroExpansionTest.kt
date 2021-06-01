@@ -47,6 +47,19 @@ class MacroExpansionTest {
                     let reverse = macro(a, b) { quote(unquote(b) - unquote(a)); };
                     reverse(2 + 2, 10 - 5);
                 """.trimIndent() to "(10 - 5) - (2 + 2)",
+                """
+                    let unless = macro(cond, cons, alt) {
+                        quote(if (!(unquote(cond))) {
+                            unquote(cons);
+                        } else {
+                            unquote(alt);
+                        });
+                    };
+                    
+                    unless(10 > 5, puts("not greater"), puts("greater"));
+                """.trimIndent() to """
+                    if (!(10 > 5)) { puts("not greater") } else { puts("greater") }
+                """.trimIndent()
         )
 
         for (test in tests) {
