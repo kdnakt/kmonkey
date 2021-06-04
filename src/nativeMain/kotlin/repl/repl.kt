@@ -1,17 +1,16 @@
 package repl
 
+import evaluator.defineMacros
 import evaluator.eval
-import lexer.newToken
-import lexer.nextToken
+import evaluator.expandMacros
 import obj.newEnvironment
 import parser.parseProgram
-import platform.posix.scanf
-import token.TokenType
 
 val PROMPT = ">> "
 
 fun start(trace: Boolean) {
     val env = newEnvironment()
+    val macroEnv = newEnvironment()
     while (true) {
         print(PROMPT)
         val str: String = readLine() ?: return
@@ -23,7 +22,8 @@ fun start(trace: Boolean) {
             continue
         }
 
-        eval(program, env)?.let {
+        defineMacros(program, macroEnv)
+        eval(expandMacros(program, macroEnv), env)?.let {
             println(it.inspect())
         }
     }
